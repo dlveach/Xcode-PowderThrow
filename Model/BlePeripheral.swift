@@ -19,6 +19,8 @@ class BlePeripheral {
     static var connectedStateChar: CBCharacteristic?
     static var connectedDecelThreshChar: CBCharacteristic?
     static var connectedConfigDataChar: CBCharacteristic?
-    static var connectedPresetNameChar: CBCharacteristic?
-    static var connectedPowderNameChar: CBCharacteristic?
+    static var connectedPresetDataChar: CBCharacteristic?
+    static var connectedPowderDataChar: CBCharacteristic?
+    static var connectedParameterCommandChar: CBCharacteristic?
+    static var connectedPresetListItemChar: CBCharacteristic?
 }

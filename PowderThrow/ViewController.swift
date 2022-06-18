@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//   ViewController.swift
 //  BLEButton
 //
 //  Created by David Veach on 3/10/22.
@@ -11,13 +11,18 @@
 import UIKit
 import CoreBluetooth
 
-// MARK: - ViewController
-class ViewController: UIViewController {
+// MARK: -  ViewController
+class  ViewController: UIViewController {
 
-    static let COMMAND_CONFIGURATION = Int8(0x01)
-    static let COMMAND_PRESETS = Int8(0x02)
-    static let COMMAND_POWDERS = Int8(0x03)
-    
+    //TODO: move to model? (make available to other view controllers)
+    /*
+    static let COMMAND_SETTINGS = Int8(0x01)
+    static let COMMAND_CURRENT_PRESET = Int8(0x10)
+    static let COMMAND_PRESET_BY_INDEX = Int8(0x20)
+    static let COMMAND_CURENT_POWDER = Int8(0x30)
+    static let COMMAND_POWDER_BY_INDEX = Int8(0x40)
+*/
+    //TODO: Move this to data model, also presets and powders
     private struct _configData {
         var preset = Int16(0)
         var fscaleP = Float32(0.0)
@@ -38,8 +43,10 @@ class ViewController: UIViewController {
     private var stateChar: CBCharacteristic!
     private var decelThreshChar: CBCharacteristic!
     private var configDataChar: CBCharacteristic!
-    private var presetNameChar: CBCharacteristic!
-    private var powderNameChar: CBCharacteristic!
+    private var presetDataChar: CBCharacteristic!
+    private var powderDataChar: CBCharacteristic!
+    private var presetListItemChar: CBCharacteristic!
+    private var parameterCommandChar: CBCharacteristic!
 
     @IBOutlet weak var peripheralName: UILabel!
     @IBOutlet weak var statusLabel: UILabel!
@@ -59,23 +66,20 @@ class ViewController: UIViewController {
     @IBOutlet weak var DecelLimit: UILabel!
     
     // MARK: - Button handlers
-    @IBAction func OffButton(_ sender: Any) {
-        print("Off button pressed.")
-        writeData(incomingValue: 0)
-    }
     
     @IBAction func settingsButtonAction(_ sender: Any) {
         print("Settings button pressed.")
         print("TODO: navigate to settings screen")
         print("Just test commands for now")
-        writeData(incomingValue: ViewController.COMMAND_CONFIGURATION)
+        writeData(incomingValue: BLE_COMMANDS.SETTINGS)
     }
     
     @IBAction func presetButtonAction(_ sender: Any) {
         print("Settings button pressed.")
         print("TODO: navigate to presets screen")
         print("Just test commands for now")
-        writeData(incomingValue: ViewController.COMMAND_PRESETS)
+        //writeData(incomingValue:  ViewController.COMMAND_CURRENT_PRESET)
+        writeParameterCommand(cmd: BLE_COMMANDS.PRESET_BY_INDEX, parameter: 2)
     }
     
     @IBAction func decelThreshSliderValueChanged(_ sender: Any) {
@@ -88,11 +92,21 @@ class ViewController: UIViewController {
         myPeripheral?.writeValue(_data!, for: BlePeripheral.connectedDecelThreshChar!, type: CBCharacteristicWriteType.withResponse)
     }
     
+    func writeParameterCommand(cmd: Int8, parameter: Int8) {
+        let _data: [Int8] = [cmd, parameter]
+        print("_data is \(String(describing: _data))")
+        print("Size of _data is \(_data.count)")
+        let outgoingData = NSData(bytes: _data, length: _data.count)
+        myPeripheral?.writeValue(outgoingData as Data, for: BlePeripheral.connectedParameterCommandChar!, type: CBCharacteristicWriteType.withResponse)
+    }
+    
     func writeData(incomingValue: Int8) {
         var val = incomingValue
         let outgoingData = NSData(bytes: &val, length: MemoryLayout<Int8>.size)
         myPeripheral?.writeValue(outgoingData as Data, for: BlePeripheral.connectedBtnChar!, type: CBCharacteristicWriteType.withResponse)
      }
+    
+    //MARK: ViewDidLoad
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -124,7 +138,7 @@ class ViewController: UIViewController {
 
 // MARK: - CBCentralManagerDelegate
 // A protocol that provides updates for the discovery and management of peripheral devices.
-extension ViewController: CBCentralManagerDelegate {
+extension  ViewController: CBCentralManagerDelegate {
 
     // MARK: - Check
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
@@ -185,9 +199,8 @@ extension ViewController: CBCentralManagerDelegate {
     }
 }
 
-// MARK: - CBPeripheralDelegate
-// A protocol that provides updates on the use of a peripheral’s services.
-extension ViewController: CBPeripheralDelegate {
+// MARK: - SERVICE DISCOVERY
+extension  ViewController: CBPeripheralDelegate {
     // MARK: - Discover Services
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         guard let services = peripheral.services else { return }
@@ -207,6 +220,11 @@ extension ViewController: CBPeripheralDelegate {
                 btnCharacteristic = characteristic
                 BlePeripheral.connectedBtnChar = btnCharacteristic
                 print("Command Button Characteristic: \(btnCharacteristic.uuid)")
+            }
+            if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Parameter_Command_UUID) {
+                parameterCommandChar = characteristic
+                BlePeripheral.connectedParameterCommandChar = parameterCommandChar
+                print("Parameter Command Characteristic: \(parameterCommandChar.uuid)")
             }
             if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Weight_UUID) {
                 weightChar = characteristic
@@ -250,19 +268,26 @@ extension ViewController: CBPeripheralDelegate {
                 peripheral.readValue(for: characteristic)
                 print("Configuration Data Characteristic: \(configDataChar.uuid)")
             }
-            if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Preset_Name_UUID) {
-                presetNameChar = characteristic
-                BlePeripheral.connectedPresetNameChar = presetNameChar
+            if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Preset_Data_UUID) {
+                presetDataChar = characteristic
+                BlePeripheral.connectedPresetDataChar = presetDataChar
                 peripheral.setNotifyValue(true, for: characteristic)
                 peripheral.readValue(for: characteristic)
-                print("Preset Name Characteristic: \(presetNameChar.uuid)")
+                print("Preset Data Characteristic: \(presetDataChar.uuid)")
             }
-            if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Powder_Name_UUID) {
-                powderNameChar = characteristic
-                BlePeripheral.connectedPowderNameChar = powderNameChar
+            if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Powder_Data_UUID) {
+                powderDataChar = characteristic
+                BlePeripheral.connectedPowderDataChar = powderDataChar
                 peripheral.setNotifyValue(true, for: characteristic)
                 peripheral.readValue(for: characteristic)
-                print("Powder Name Characteristic: \(powderNameChar.uuid)")
+                print("Powder Data Characteristic: \(powderDataChar.uuid)")
+            }
+            if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Preset_List_Item_UUID) {
+                presetListItemChar = characteristic
+                BlePeripheral.connectedPresetListItemChar = presetListItemChar
+                peripheral.setNotifyValue(true, for: characteristic)
+                peripheral.readValue(for: characteristic)
+                print("Preset List Item Characteristic: \(presetListItemChar.uuid)")
             }
         }
     }
@@ -328,10 +353,31 @@ extension ViewController: CBPeripheralDelegate {
                 Tollerance.text = String(format: "Tol: %.2f gn", config_data.gn_tolerance)
                 print("Gram Tolerance: \(config_data.mg_tolerance)")
                 print("Preset Index: \(config_data.preset)")
-            } else if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Preset_Name_UUID) {
-                presetNameLabel.text = (String(data: dd, encoding: String.Encoding.ascii)!)
-            } else if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Powder_Name_UUID) {
-                powderNameLabel.text = (String(data: dd, encoding: String.Encoding.ascii)!)
+            } else if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Preset_Data_UUID) {
+                print("Processing read value in Preset Data Charactaristic")
+                print("Size of data: \(dd.count)")
+                print("data as array values: \(String(describing: Array(dd)))")
+                let preset_target_weight = Array(dd[0...3]).withUnsafeBytes { $0.load(as: Float32.self) }
+                print("Preset Chg weight: \(preset_target_weight)")
+                //targetWeightLabel.text = (String(preset_target_weight))
+                let powder_index = Array(dd[4...7]).withUnsafeBytes { $0.load(as: Int32.self) }
+                print("Powder Index: \(powder_index)")
+                let preset_name = String(cString: Array(dd[8...24]))
+                print("Preset Name: '\(preset_name)'")
+                presetNameLabel.text = preset_name.trimmingCharacters(in: .whitespacesAndNewlines)
+                print("TODO: parse more preset data")
+                
+            } else if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Preset_List_Item_UUID) {
+                // test preset list array
+                //PresetList.append(PresetListItem(index: 0, name: preset_name))
+
+            } else if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Powder_Data_UUID) {
+                print("Processing read value in Powder Data Charactaristic")
+                print("Size of data: \(dd.count)")
+                print("data as array values: \(String(describing: Array(dd)))")
+                let powder_name = String(cString: Array(dd[0...17]))
+                print("Powder Name: '\(powder_name)'")
+                powderNameLabel.text = powder_name.trimmingCharacters(in: .whitespacesAndNewlines)
             } else if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Target_UUID) {
                 targetWeightLabel.text = (String(data: dd, encoding: String.Encoding.ascii))
             }
@@ -374,8 +420,6 @@ extension ViewController: CBPeripheralDelegate {
             print ("Subscribed. Notification has begun for: \(characteristic.uuid)")
         }
     }
-
-    
 }
 
 

@@ -18,6 +18,7 @@
 		9F4FDEC927DA7E77001CEE17 /* BLEButtonUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4FDEC827DA7E77001CEE17 /* BLEButtonUITests.swift */; };
 		9F4FDEDB27DA8094001CEE17 /* CBUUIDs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4FDEDA27DA8094001CEE17 /* CBUUIDs.swift */; };
 		9F4FDEE627DA8C90001CEE17 /* BlePeripheral.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4FDEE527DA8C90001CEE17 /* BlePeripheral.swift */; };
+		9FED81F9285B6D600016B0BF /* PTData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FED81F8285B6D600016B0BF /* PTData.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,6 +56,7 @@
 		9F4FDECA27DA7E77001CEE17 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9F4FDEDA27DA8094001CEE17 /* CBUUIDs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CBUUIDs.swift; sourceTree = "<group>"; };
 		9F4FDEE527DA8C90001CEE17 /* BlePeripheral.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlePeripheral.swift; sourceTree = "<group>"; };
+		9FED81F8285B6D600016B0BF /* PTData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PTData.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -141,6 +143,7 @@
 			children = (
 				9F4FDEE527DA8C90001CEE17 /* BlePeripheral.swift */,
 				9F4FDEDA27DA8094001CEE17 /* CBUUIDs.swift */,
+				9FED81F8285B6D600016B0BF /* PTData.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -277,6 +280,7 @@
 			files = (
 				9F4FDEA827DA7E75001CEE17 /* ViewController.swift in Sources */,
 				9F4FDEE627DA8C90001CEE17 /* BlePeripheral.swift in Sources */,
+				9FED81F9285B6D600016B0BF /* PTData.swift in Sources */,
 				9F4FDEAE27DA7E75001CEE17 /* PowderThrow.xcdatamodeld in Sources */,
 				9F4FDEDB27DA8094001CEE17 /* CBUUIDs.swift in Sources */,
 				9F4FDEA427DA7E75001CEE17 /* AppDelegate.swift in Sources */,
