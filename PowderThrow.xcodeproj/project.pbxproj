@@ -18,6 +18,9 @@
 		9F4FDEC927DA7E77001CEE17 /* BLEButtonUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4FDEC827DA7E77001CEE17 /* BLEButtonUITests.swift */; };
 		9F4FDEDB27DA8094001CEE17 /* CBUUIDs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4FDEDA27DA8094001CEE17 /* CBUUIDs.swift */; };
 		9F4FDEE627DA8C90001CEE17 /* BlePeripheral.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4FDEE527DA8C90001CEE17 /* BlePeripheral.swift */; };
+		9FB0BC72285E0BE200E1CCAB /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB0BC71285E0BE200E1CCAB /* SettingsViewController.swift */; };
+		9FB0BC82285E161800E1CCAB /* PresetsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB0BC81285E161800E1CCAB /* PresetsViewController.swift */; };
+		9FB0BC8A285E194000E1CCAB /* PowdersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB0BC89285E194000E1CCAB /* PowdersViewController.swift */; };
 		9FED81F9285B6D600016B0BF /* PTData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FED81F8285B6D600016B0BF /* PTData.swift */; };
 /* End PBXBuildFile section */
 
@@ -56,6 +59,9 @@
 		9F4FDECA27DA7E77001CEE17 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9F4FDEDA27DA8094001CEE17 /* CBUUIDs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CBUUIDs.swift; sourceTree = "<group>"; };
 		9F4FDEE527DA8C90001CEE17 /* BlePeripheral.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlePeripheral.swift; sourceTree = "<group>"; };
+		9FB0BC71285E0BE200E1CCAB /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
+		9FB0BC81285E161800E1CCAB /* PresetsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresetsViewController.swift; sourceTree = "<group>"; };
+		9FB0BC89285E194000E1CCAB /* PowdersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PowdersViewController.swift; sourceTree = "<group>"; };
 		9FED81F8285B6D600016B0BF /* PTData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PTData.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -111,6 +117,9 @@
 				9F4FDEA327DA7E75001CEE17 /* AppDelegate.swift */,
 				9F4FDEA527DA7E75001CEE17 /* SceneDelegate.swift */,
 				9F4FDEA727DA7E75001CEE17 /* ViewController.swift */,
+				9FB0BC71285E0BE200E1CCAB /* SettingsViewController.swift */,
+				9FB0BC81285E161800E1CCAB /* PresetsViewController.swift */,
+				9FB0BC89285E194000E1CCAB /* PowdersViewController.swift */,
 				9F4FDEA927DA7E75001CEE17 /* Main.storyboard */,
 				9F4FDEAF27DA7E77001CEE17 /* Assets.xcassets */,
 				9F4FDEB127DA7E77001CEE17 /* LaunchScreen.storyboard */,
@@ -281,10 +290,13 @@
 				9F4FDEA827DA7E75001CEE17 /* ViewController.swift in Sources */,
 				9F4FDEE627DA8C90001CEE17 /* BlePeripheral.swift in Sources */,
 				9FED81F9285B6D600016B0BF /* PTData.swift in Sources */,
+				9FB0BC8A285E194000E1CCAB /* PowdersViewController.swift in Sources */,
 				9F4FDEAE27DA7E75001CEE17 /* PowderThrow.xcdatamodeld in Sources */,
 				9F4FDEDB27DA8094001CEE17 /* CBUUIDs.swift in Sources */,
 				9F4FDEA427DA7E75001CEE17 /* AppDelegate.swift in Sources */,
 				9F4FDEA627DA7E75001CEE17 /* SceneDelegate.swift in Sources */,
+				9FB0BC72285E0BE200E1CCAB /* SettingsViewController.swift in Sources */,
+				9FB0BC82285E161800E1CCAB /* PresetsViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

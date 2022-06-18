@@ -7,17 +7,17 @@
 
 import Foundation
 
-struct Config {
-    static var preset = Int16(0)
-    static var fscaleP = Float32(0.0)
-    static var decel_threshold = Float32(0.0)
-    static var bump_threshold = Float32(0.0)
-    static var decel_limit = Int16(0)
-    static var gn_tolerance = Float32(0.0)
-    static var mg_tolerance = Float32(0.0)
-    static var config_version = Int16(0)
-
+struct _config_data {
+    var preset = Int16(0)
+    var fscaleP = Float32(0.0)
+    var decel_threshold = Float32(0.0)
+    var bump_threshold = Float32(0.0)
+    var decel_limit = Int16(0)
+    var gn_tolerance = Float32(0.0)
+    var mg_tolerance = Float32(0.0)
+    var config_version = Int16(0)
 }
+var ConfigData = _config_data()
 
 struct PresetListItem {
      var index = Int16(0)
