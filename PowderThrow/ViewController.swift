@@ -45,9 +45,11 @@ class  ViewController: UIViewController {
         print("Settings button pressed.")
         print("TODO: navigate to settings screen")
         print("Just test commands for now")
-        writeData(incomingValue: BLE_COMMANDS.SETTINGS)
+        //writeData(incomingValue: BLE_COMMANDS.SETTINGS)
+        writeParameterCommand(cmd: BLE_COMMANDS.PRESET_BY_INDEX, parameter: 99)
+
     }
-    
+    /*
     @IBAction func presetButtonAction(_ sender: Any) {
         print("Settings button pressed.")
         print("TODO: navigate to presets screen")
@@ -55,6 +57,7 @@ class  ViewController: UIViewController {
         //writeData(incomingValue:  ViewController.COMMAND_CURRENT_PRESET)
         writeParameterCommand(cmd: BLE_COMMANDS.PRESET_BY_INDEX, parameter: 2)
     }
+    */
     
     @IBAction func decelThreshSliderValueChanged(_ sender: Any) {
         let val = (decelThreshSlider.value * 10).rounded() / 10
@@ -74,6 +77,7 @@ class  ViewController: UIViewController {
         myPeripheral?.writeValue(outgoingData as Data, for: BlePeripheral.connectedParameterCommandChar!, type: CBCharacteristicWriteType.withResponse)
     }
     
+    
     func writeData(incomingValue: Int8) {
         var val = incomingValue
         let outgoingData = NSData(bytes: &val, length: MemoryLayout<Int8>.size)
@@ -88,10 +92,9 @@ class  ViewController: UIViewController {
         title = "PowderThrow: Loading ..."
         
         // Display object customization
-        //TODO: rename this (scale weight label)
-        scaleWeightLabel.layer.borderWidth = 4.0
+        scaleWeightLabel.layer.borderWidth = 8.0
         scaleWeightLabel.layer.borderColor = UIColor.gray.cgColor
-        scaleWeightLabel.layer.cornerRadius = 8
+        scaleWeightLabel.layer.cornerRadius = 10
         settingsButtonOutlet.layer.cornerRadius = 8
         settingsButtonOutlet.isEnabled = false;
         presetButtonOutlet.layer.cornerRadius = 8
@@ -272,7 +275,6 @@ extension  ViewController: CBPeripheralDelegate {
     }
 
     // MARK: - Charactaristic  handlers
-    
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         if let dd = characteristic.value {
             if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Weight_UUID) {
@@ -295,17 +297,22 @@ extension  ViewController: CBPeripheralDelegate {
                     scaleWeightLabel.layer.borderColor = UIColor.orange.cgColor
                 }
             } else if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_State_UUID) {
-                stateLabel.text = (String(data: dd, encoding: String.Encoding.ascii)!)
-                if stateLabel.text == "Ready" || stateLabel.text == "Locked" {
-                    settingsButtonOutlet.isEnabled = true;
-                    settingsButtonOutlet.layer.backgroundColor = UIColor.systemBlue.cgColor
-                    presetButtonOutlet.isEnabled = true;
-                    presetButtonOutlet.layer.backgroundColor = UIColor.systemBlue.cgColor
+                if let system_state = (String(data: dd, encoding: String.Encoding.ascii)) {
+                    stateLabel.text = "System:  \(system_state)"
+                    if system_state == "Ready" || system_state == "Locked" {
+                        settingsButtonOutlet.isEnabled = false;
+                        settingsButtonOutlet.layer.backgroundColor = UIColor.gray.cgColor
+                        presetButtonOutlet.isEnabled = false;
+                        presetButtonOutlet.layer.backgroundColor = UIColor.gray.cgColor
+                    } else {
+                        settingsButtonOutlet.isEnabled = true;
+                        settingsButtonOutlet.layer.backgroundColor = UIColor.systemBlue.cgColor
+                        presetButtonOutlet.isEnabled = true;
+                        presetButtonOutlet.layer.backgroundColor = UIColor.systemBlue.cgColor
+                    }
                 } else {
-                    settingsButtonOutlet.isEnabled = false;
-                    settingsButtonOutlet.layer.backgroundColor = UIColor.gray.cgColor
-                    presetButtonOutlet.isEnabled = false;
-                    presetButtonOutlet.layer.backgroundColor = UIColor.gray.cgColor
+                    stateLabel.text = "System: Unknown State"
+                    print("ERROR: could not parse system state text")
                 }
             } else if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Decel_Thresh_UUID) {
                 let str = (String(data: dd, encoding: String.Encoding.ascii)!)
