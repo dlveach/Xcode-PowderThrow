@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9F4C46F1286FD6B60080F6E3 /* RunThrowerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4C46F0286FD6B60080F6E3 /* RunThrowerViewController.swift */; };
 		9F4FDEA427DA7E75001CEE17 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4FDEA327DA7E75001CEE17 /* AppDelegate.swift */; };
 		9F4FDEA627DA7E75001CEE17 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4FDEA527DA7E75001CEE17 /* SceneDelegate.swift */; };
 		9F4FDEA827DA7E75001CEE17 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4FDEA727DA7E75001CEE17 /* ViewController.swift */; };
@@ -42,6 +43,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		9F4C46F0286FD6B60080F6E3 /* RunThrowerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunThrowerViewController.swift; sourceTree = "<group>"; };
 		9F4FDEA027DA7E75001CEE17 /* PowderThrow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PowderThrow.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9F4FDEA327DA7E75001CEE17 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		9F4FDEA527DA7E75001CEE17 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -117,6 +119,7 @@
 				9F4FDEA327DA7E75001CEE17 /* AppDelegate.swift */,
 				9F4FDEA527DA7E75001CEE17 /* SceneDelegate.swift */,
 				9F4FDEA727DA7E75001CEE17 /* ViewController.swift */,
+				9F4C46F0286FD6B60080F6E3 /* RunThrowerViewController.swift */,
 				9FB0BC71285E0BE200E1CCAB /* SettingsViewController.swift */,
 				9FB0BC81285E161800E1CCAB /* PresetsViewController.swift */,
 				9FB0BC89285E194000E1CCAB /* PowdersViewController.swift */,
@@ -294,6 +297,7 @@
 				9F4FDEAE27DA7E75001CEE17 /* PowderThrow.xcdatamodeld in Sources */,
 				9F4FDEDB27DA8094001CEE17 /* CBUUIDs.swift in Sources */,
 				9F4FDEA427DA7E75001CEE17 /* AppDelegate.swift in Sources */,
+				9F4C46F1286FD6B60080F6E3 /* RunThrowerViewController.swift in Sources */,
 				9F4FDEA627DA7E75001CEE17 /* SceneDelegate.swift in Sources */,
 				9FB0BC72285E0BE200E1CCAB /* SettingsViewController.swift in Sources */,
 				9FB0BC82285E161800E1CCAB /* PresetsViewController.swift in Sources */,
@@ -512,14 +516,14 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 25WST6F2PU;
-				INFOPLIST_FILE = BLEButtonTests/Info.plist;
+				INFOPLIST_FILE = PowderThrowTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.dveach.BLEButtonTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.dveach.PowderThrowTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -534,14 +538,14 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 25WST6F2PU;
-				INFOPLIST_FILE = BLEButtonTests/Info.plist;
+				INFOPLIST_FILE = PowderThrowTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.dveach.BLEButtonTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.dveach.PowderThrowTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -555,17 +559,17 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 25WST6F2PU;
-				INFOPLIST_FILE = BLEButtonUITests/Info.plist;
+				INFOPLIST_FILE = PowderThrowUITests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.dveach.BLEButtonUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.dveach.PowderThrowUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = BLEButton;
+				TEST_TARGET_NAME = PowderThrow;
 			};
 			name = Debug;
 		};
@@ -575,17 +579,17 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 25WST6F2PU;
-				INFOPLIST_FILE = BLEButtonUITests/Info.plist;
+				INFOPLIST_FILE = PowderThrowUITests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.dveach.BLEButtonUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.dveach.PowderThrowUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = BLEButton;
+				TEST_TARGET_NAME = PowderThrow;
 			};
 			name = Release;
 		};

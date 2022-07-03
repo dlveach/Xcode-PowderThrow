@@ -1,22 +1,21 @@
 //
 //   ViewController.swift
-//  BLEButton
+//  PowderThrow
 //
 //  Created by David Veach on 3/10/22.
 //
 //  TODO:
-//      - add a model for storing config data (and other persisetnt stuffs)
-//      - need a charactaristic for scale mode.  Store in model.
+//      - timeout on connect
 
 import UIKit
 import CoreBluetooth
 
-// MARK: -  ViewController
-class  ViewController: UIViewController {
+// MARK: -  Class: ViewController
+class  ViewController: UIViewController, RunDataChangeListener, PresetChangeListener, PowderChangeListener {
 
     private var centralManager: CBCentralManager!
     private var myPeripheral: CBPeripheral!
-    private var btnCharacteristic: CBCharacteristic!
+    private var parameterCommandChar: CBCharacteristic!
     private var weightChar: CBCharacteristic!
     private var scaleTargetCharacteristic: CBCharacteristic!
     private var condCharacteristic: CBCharacteristic!
@@ -24,83 +23,98 @@ class  ViewController: UIViewController {
     private var decelThreshChar: CBCharacteristic!
     private var configDataChar: CBCharacteristic!
     private var presetDataChar: CBCharacteristic!
-    private var powderDataChar: CBCharacteristic!
     private var presetListItemChar: CBCharacteristic!
-    private var parameterCommandChar: CBCharacteristic!
-
-    @IBOutlet weak var scaleWeightLabel: UILabel!
-    @IBOutlet weak var scaleCondLabel: UILabel!
-    @IBOutlet weak var stateLabel: UILabel!
-    @IBOutlet weak var decelThreshSliderLabel: UILabel!
-    @IBOutlet weak var decelThreshSlider: UISlider!
+    private var powderDataChar: CBCharacteristic!
+    private var powderListItemChar: CBCharacteristic!
+    
+    @IBOutlet weak var connectButton: UIButton!
+    @IBOutlet weak var spinnerView: UIActivityIndicatorView!
+    @IBOutlet weak var progressView: UIProgressView!
+    @IBOutlet weak var runButton: UIButton!
+    @IBOutlet weak var settingsButton: UIButton!
+    @IBOutlet weak var presetsButton: UIButton!
+    
     @IBOutlet weak var presetNameLabel: UILabel!
     @IBOutlet weak var powderNameLabel: UILabel!
     @IBOutlet weak var targetWeightLabel: UILabel!
-    @IBOutlet weak var settingsButtonOutlet: UIButton!
-    @IBOutlet weak var presetButtonOutlet: UIButton!
-    
-    // MARK: - Button handlers
-    
-    @IBAction func settingsButtonAction(_ sender: Any) {
-        print("Settings button pressed.")
-        print("TODO: navigate to settings screen")
-        print("Just test commands for now")
-        //writeData(incomingValue: BLE_COMMANDS.SETTINGS)
-        writeParameterCommand(cmd: BLE_COMMANDS.PRESET_BY_INDEX, parameter: 99)
 
-    }
-    /*
-    @IBAction func presetButtonAction(_ sender: Any) {
-        print("Settings button pressed.")
-        print("TODO: navigate to presets screen")
-        print("Just test commands for now")
-        //writeData(incomingValue:  ViewController.COMMAND_CURRENT_PRESET)
-        writeParameterCommand(cmd: BLE_COMMANDS.PRESET_BY_INDEX, parameter: 2)
-    }
-    */
-    
-    @IBAction func decelThreshSliderValueChanged(_ sender: Any) {
-        let val = (decelThreshSlider.value * 10).rounded() / 10
-        //only do updates if rounded slider val is diff from label
-        if (decelThreshSliderLabel.text == "\(val)") { return }
-        decelThreshSliderLabel.text = "\(val)"
-        //update the charactaristic
-        let _data = ("\(val)" as NSString).data(using: String.Encoding.utf8.rawValue)
-        myPeripheral?.writeValue(_data!, for: BlePeripheral.connectedDecelThreshChar!, type: CBCharacteristicWriteType.withResponse)
-    }
-    
-    func writeParameterCommand(cmd: Int8, parameter: Int8) {
-        let _data: [Int8] = [cmd, parameter]
-        print("_data is \(String(describing: _data))")
-        print("Size of _data is \(_data.count)")
-        let outgoingData = NSData(bytes: _data, length: _data.count)
-        myPeripheral?.writeValue(outgoingData as Data, for: BlePeripheral.connectedParameterCommandChar!, type: CBCharacteristicWriteType.withResponse)
-    }
+    var isLoadingData: Bool = true
     
     
-    func writeData(incomingValue: Int8) {
-        var val = incomingValue
-        let outgoingData = NSData(bytes: &val, length: MemoryLayout<Int8>.size)
-        myPeripheral?.writeValue(outgoingData as Data, for: BlePeripheral.connectedBtnChar!, type: CBCharacteristicWriteType.withResponse)
-     }
+    // MARK: - UI handlers
     
+    // MARK: - Support Functions
+        
     //MARK: ViewDidLoad
     
     override func viewDidLoad() {
         super.viewDidLoad()
         centralManager = CBCentralManager(delegate: self, queue: nil)
-        title = "PowderThrow: Loading ..."
+        title = "PowderThrow: Starting ..."
         
         // Display object customization
-        scaleWeightLabel.layer.borderWidth = 8.0
-        scaleWeightLabel.layer.borderColor = UIColor.gray.cgColor
-        scaleWeightLabel.layer.cornerRadius = 10
-        settingsButtonOutlet.layer.cornerRadius = 8
-        settingsButtonOutlet.isEnabled = false;
-        presetButtonOutlet.layer.cornerRadius = 8
-        presetButtonOutlet.isEnabled = false;
+        spinnerView.style = UIActivityIndicatorView.Style.large
+        spinnerView.hidesWhenStopped = true
+        connectButton.layer.cornerRadius = 8
+        connectButton.isEnabled = false
+        connectButton.isHidden = false
+        runButton.layer.cornerRadius = 8
+        settingsButton.layer.cornerRadius = 8
+        presetsButton.layer.cornerRadius = 8
+
+        runButton.isEnabled = false
+        runButton.isHidden = true
+        settingsButton.isEnabled = false;
+        settingsButton.isHidden = true
+        presetsButton.isEnabled = false;
+        presetsButton.isHidden = true
+        progressView.isHidden = true
+        presetNameLabel.isHidden = true
+        powderNameLabel.isHidden = true
+        targetWeightLabel.isHidden = true
     }
 
+    func presetChanged(to new_preset: PresetManager.PresetData) {
+        print("main screen setting preset field")
+        presetNameLabel.text = new_preset.preset_name
+    }
+    
+    func powderChanged(to new_powder: PowderManager.PowderData) {
+        print("main screen setting powder field")
+        powderNameLabel.text = new_powder.powder_name
+    }
+    
+    func runDataChanged(to new_data: RunDataManager.RunData) {
+        //TODO: fix this!  run data should be coming from scale.  Including preset/powder.
+        //presetNameLabel.text = new_data.preset_name
+        //powderNameLabel.text = new_data.powder_name
+        //presetNameLabel.text = g_preset_manager.currentPreset.preset_name
+        //powderNameLabel.text = g_powder_manager.currentPowder.powder_name
+        if new_data.scale_in_grains {
+            let val = (new_data.target_weight * 100).rounded() / 100
+            targetWeightLabel.text = "\(val) gn"
+        } else {
+            let val = (new_data.target_weight * GM_TO_GN_FACTOR * 1000).rounded() / 1000
+            targetWeightLabel.text = "\(val) g"
+        }
+    }
+    
+    @IBAction func connectButtonAction(_ sender: Any) {
+        // start connecting
+        connectButton.isHidden = true
+        connectButton.isEnabled = false
+        spinnerView.isHidden = false
+        spinnerView.startAnimating()
+        startScanning()
+        progressView.progress = 0.0
+        progressView.isHidden = false
+        isLoadingData = true
+
+        g_rundata_manager.addListener(self)
+        g_preset_manager.addListener(self)
+        g_powder_manager.addListener(self)
+    }
+    
     func startScanning() -> Void {
         // Start Scanning
         print("Start scanning ...")
@@ -112,6 +126,27 @@ class  ViewController: UIViewController {
         print("Stop Scanning.")
         centralManager?.stopScan()
         title = "PowderThrow: Scanning stopped."
+    }
+    
+    func setNotConnectedView() {
+        title = "PowderThrow: Not Connected."
+
+        connectButton.isEnabled = true
+        connectButton.layer.backgroundColor = UIColor.systemBlue.cgColor
+        connectButton.isHidden = false
+        runButton.isEnabled = false
+        runButton.isHidden = true
+        settingsButton.isEnabled = false;
+        settingsButton.isHidden = true
+        presetsButton.isEnabled = false;
+        presetsButton.isHidden = true
+        progressView.isHidden = true
+        presetNameLabel.isHidden = true
+        powderNameLabel.isHidden = true
+        targetWeightLabel.isHidden = true
+        g_rundata_manager.reset()
+        g_powder_manager.reset()
+        g_preset_manager.reset()
     }
 
 }
@@ -133,7 +168,7 @@ extension  ViewController: CBCentralManagerDelegate {
             self.present(alertVC, animated: true, completion: nil)
         case .poweredOn:
             print("Is Powered On.")
-            startScanning()
+            setNotConnectedView()
         case .unsupported:
             print("Is Unsupported.")
         case .unauthorized:
@@ -156,6 +191,7 @@ extension  ViewController: CBCentralManagerDelegate {
         title = "PowderThrow: Peripheral found."
         //peripheralName.text = "Device: \(peripheral.name ?? "Unnamed")"
         print("Peripheral Discovered: \(peripheral)")
+        BlePeripheral.connectedPeripheral = myPeripheral
         print("Connecting ...")
         title = "PowderThrow: Connecting ..."
         centralManager.connect(peripheral, options: nil)
@@ -165,23 +201,34 @@ extension  ViewController: CBCentralManagerDelegate {
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         stopScanning()
         print("Connected.")
-        title = "PowderThrow: Connected."
+        title = "PowderThrow: Reading Services ...."
         print("Discovering services ...")
         myPeripheral.discoverServices([CBUUIDs.BLEService_UUID])
     }
     
     // MARK: - Disconnect
-    func centralManager(_ central: CBCentralManager, didDisconnect peripheral: CBPeripheral) {
-        print("Disconnected from device.")
+    
+    func centralManager (_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
+        print("Perhipheral disconnected.")
         title = "PowderThrow: Disconnected."
-        scaleWeightLabel.text = ""
-        scaleCondLabel.text = ""
+        print("TODO: pop screens back to main and reset for reconnection.")
         
-        //TODO: more here.
+        if let nav = self.navigationController {
+            let targetVC = nav.viewControllers.first{$0 is ViewController}
+            if let targetVC = targetVC {
+                nav.popToViewController(targetVC, animated: true)
+                setNotConnectedView()
+            } else {
+                print("ERROR: Was not able to locate ViewController in navigation controller.first")
+            }
+        } else {
+            print("ERROR: not in navigation controller?!?")
+        }
     }
 }
 
-// MARK: - SERVICE DISCOVERY
+// MARK: - CBPeripheralDelegate
+
 extension  ViewController: CBPeripheralDelegate {
     // MARK: - Discover Services
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
@@ -198,11 +245,6 @@ extension  ViewController: CBPeripheralDelegate {
         }
         print("Found \(characteristics.count) characteristics.")
         for characteristic in characteristics {
-            if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Btn_UUID)  {
-                btnCharacteristic = characteristic
-                BlePeripheral.connectedBtnChar = btnCharacteristic
-                print("Command Button Characteristic: \(btnCharacteristic.uuid)")
-            }
             if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Parameter_Command_UUID) {
                 parameterCommandChar = characteristic
                 BlePeripheral.connectedParameterCommandChar = parameterCommandChar
@@ -268,104 +310,204 @@ extension  ViewController: CBPeripheralDelegate {
                 presetListItemChar = characteristic
                 BlePeripheral.connectedPresetListItemChar = presetListItemChar
                 peripheral.setNotifyValue(true, for: characteristic)
-                peripheral.readValue(for: characteristic)
                 print("Preset List Item Characteristic: \(presetListItemChar.uuid)")
             }
+            if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Powder_List_Item_UUID)  {
+                powderListItemChar = characteristic
+                BlePeripheral.connectedPowderListItemChar = powderListItemChar
+                peripheral.setNotifyValue(true, for: characteristic)
+                print("Command Button Characteristic: \(powderListItemChar.uuid)")
+            }
         }
+        print("All Characteristics registered, start loading preset data.")
+        title = "PowderThrow: Loading Data ...."
+        BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.PRESET_NAME_BY_INDEX, parameter: Int8(1))
     }
 
     // MARK: - Charactaristic  handlers
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         if let dd = characteristic.value {
             if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Weight_UUID) {
-                let str = String(data: dd, encoding: String.Encoding.ascii)!
-                let trimmed = str.trimmingCharacters(in: .whitespacesAndNewlines)
-                scaleWeightLabel.text = (trimmed)
+                let grains = Array(dd[0...0]).withUnsafeBytes { $0.load(as: Bool.self) }
+                g_rundata_manager.currentRunData.scale_in_grains = grains
+                let val = Array(dd[1...4]).withUnsafeBytes { $0.load(as: Float32.self) }
+                g_rundata_manager.currentRunData.scale_value = val
             } else if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Cond_UUID) {
-                scaleCondLabel.text = (String(data: dd, encoding: String.Encoding.ascii)!)
-                if scaleCondLabel.text == "Pan Off" {
-                    scaleWeightLabel.layer.borderColor = UIColor.blue.cgColor
-                } else if scaleCondLabel.text == "On Target" {
-                    scaleWeightLabel.layer.borderColor = UIColor.green.cgColor
-                } else if scaleCondLabel.text == "Over Target" {
-                    scaleWeightLabel.layer.borderColor = UIColor.red.cgColor
-                } else if scaleCondLabel.text == "Not Ready" || scaleCondLabel.text == "Undefined" {
-                    scaleWeightLabel.layer.borderColor = UIColor.gray.cgColor
-                } else if scaleCondLabel.text == "Zero" {
-                    scaleWeightLabel.layer.borderColor = UIColor.white.cgColor
-                } else {
-                    scaleWeightLabel.layer.borderColor = UIColor.orange.cgColor
-                }
+                let val = Array(dd[0...3]).withUnsafeBytes { $0.load(as: Int32.self) }
+                g_rundata_manager.currentRunData.scale_cond = val
             } else if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_State_UUID) {
-                if let system_state = (String(data: dd, encoding: String.Encoding.ascii)) {
-                    stateLabel.text = "System:  \(system_state)"
-                    if system_state == "Ready" || system_state == "Locked" {
-                        settingsButtonOutlet.isEnabled = false;
-                        settingsButtonOutlet.layer.backgroundColor = UIColor.gray.cgColor
-                        presetButtonOutlet.isEnabled = false;
-                        presetButtonOutlet.layer.backgroundColor = UIColor.gray.cgColor
-                    } else {
-                        settingsButtonOutlet.isEnabled = true;
-                        settingsButtonOutlet.layer.backgroundColor = UIColor.systemBlue.cgColor
-                        presetButtonOutlet.isEnabled = true;
-                        presetButtonOutlet.layer.backgroundColor = UIColor.systemBlue.cgColor
-                    }
-                } else {
-                    stateLabel.text = "System: Unknown State"
-                    print("ERROR: could not parse system state text")
-                }
+                let val = Array(dd[0...3]).withUnsafeBytes { $0.load(as: Int32.self) }
+                g_rundata_manager.currentRunData.system_state = val
             } else if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Decel_Thresh_UUID) {
-                let str = (String(data: dd, encoding: String.Encoding.ascii)!)
-                decelThreshSliderLabel.text = str
-                if let val = Float(str) {
-                    decelThreshSlider.value = val
-                } else {
-                    print("ERROR: Char Decel_Thresh does not contain Float")
-                }
+                let val = Array(dd[0...3]).withUnsafeBytes { $0.load(as: Float32.self) }
+                g_rundata_manager.currentRunData.decel_thresh = val
+            } else if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Target_UUID) {
+                let grains = Array(dd[0...0]).withUnsafeBytes { $0.load(as: Bool.self) }
+                g_rundata_manager.currentRunData.scale_in_grains = grains
+                let val = Array(dd[1...4]).withUnsafeBytes { $0.load(as: Float32.self) }
+                g_rundata_manager.currentRunData.target_weight = val
             } else if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Config_Data_UUID) {
-                print("Unpacking Config Data Charactaristic")
+                print("############################# Config Data Charactaristic")
                 let _data: Data = dd
-                ConfigData = _data.withUnsafeBytes { $0.load(as: _config_data.self) }
-                print("Config Version: \(ConfigData.config_version)")
-                print("Bump Threshold: \(ConfigData.bump_threshold)")
-                print("Decel Limit: \(ConfigData.decel_limit)")
-                print("Decel Threshold: \(ConfigData.decel_threshold)")
-                print("FScaleP: \(ConfigData.fscaleP)")
-                print("Grain Tolerance: \(ConfigData.gn_tolerance)")
-                print("Gram Tolerance: \(ConfigData.mg_tolerance)")
-                print("Preset Index: \(ConfigData.preset)")
+                g_configData = _data.withUnsafeBytes { $0.load(as: _config_data.self) }
+                print("Config Version: \(g_configData.config_version)")
+                print("Bump Threshold: \(g_configData.bump_threshold)")
+                print("Decel Limit: \(g_configData.decel_limit)")
+                print("Decel Threshold: \(g_configData.decel_threshold)")
+                print("FScaleP: \(g_configData.fscaleP)")
+                print("Grain Tolerance: \(g_configData.gn_tolerance)")
+                print("Gram Tolerance: \(g_configData.mg_tolerance)")
+                print("Preset Index: \(g_configData.preset)")
+                
             } else if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Preset_Data_UUID) {
-                print("Processing read value in Preset Data Charactaristic")
+                print("############################# Preset Data Charactaristic")
                 print("Size of data: \(dd.count)")
                 print("data as array values: \(String(describing: Array(dd)))")
-                let preset_target_weight = Array(dd[0...3]).withUnsafeBytes { $0.load(as: Float32.self) }
-                print("Preset Chg weight: \(preset_target_weight)")
-                //targetWeightLabel.text = (String(preset_target_weight))
-                let powder_index = Array(dd[4...7]).withUnsafeBytes { $0.load(as: Int32.self) }
+                let preset_index = Array(dd[0...3]).withUnsafeBytes { $0.load(as: Int32.self) }
+                let preset_charge_weight = Array(dd[4...7]).withUnsafeBytes { $0.load(as: Float32.self) }
+                let powder_index = Array(dd[8...11]).withUnsafeBytes { $0.load(as: Int32.self) }
+                let preset_name = String(cString: Array(dd[12...28]))
+                let bullet_name = String(cString: Array(dd[29...45]))
+                let bullet_weight = Array(dd[46...49]).withUnsafeBytes { $0.load(as: Int32.self) }
+                let brass_name = String(cString: Array(dd[52...68]))
+                let preset_version = Array(dd[72...75]).withUnsafeBytes { $0.load(as: Int32.self) }
+                print("Preset Index: \(preset_index)")
+                print("Preset Chg weight: \(preset_charge_weight)")
                 print("Powder Index: \(powder_index)")
-                let preset_name = String(cString: Array(dd[8...24]))
                 print("Preset Name: '\(preset_name)'")
-                presetNameLabel.text = "Preset:  \(preset_name.trimmingCharacters(in: .whitespacesAndNewlines))"
-                //presetNameLabel.text = preset_name.trimmingCharacters(in: .whitespacesAndNewlines)
-                print("TODO: parse more preset data")
+                print("Bullet Name: '\(bullet_name)'")
+                print("Bullet Weight: \(bullet_weight)")
+                print("Brass Name: '\(brass_name)'")
+                print("Preset Version: \(preset_version)")
+                let preset = PresetManager.PresetData(
+                    preset_number: preset_index + 1, //TODO: leave 1 based (as is) or change to 0 base?
+                    charge_weight: preset_charge_weight,
+                    powder_index: powder_index,
+                    preset_name: preset_name,
+                    bullet_name: String("                "),
+                    bullet_weight: Int32(0),
+                    brass_name: String("                "),
+                    preset_version: preset_version
+                )
+                g_preset_manager.currentPreset = preset
                 
             } else if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Preset_List_Item_UUID) {
-                // test preset list array
-                //PresetList.append(PresetListItem(index: 0, name: preset_name))
+                print("############################# Preset List Item Charactaristic")
+                let preset_index = Array(dd[0...3]).withUnsafeBytes { $0.load(as: Int32.self) }
+                //print("preset_index: \(preset_index)")
+                let preset_empty = dd[4...4].withUnsafeBytes { $0.load(as: Bool.self) }
+                var preset_name: String
+                if preset_empty {
+                    preset_name = "EMPTY"
+                } else {
+                    preset_name = String(cString: Array(dd[5...23]))
+                }
+                if g_preset_manager.isLoading {
+                    print("Add '\(preset_name)' to preset list, index: \(preset_index)")
+                    g_preset_manager.addListItem(preset_name)
+                    let progress: Float = Float(preset_index)/75.0
+                    progressView.progress = progress
+                    let next_index = preset_index + 1
+                    if g_preset_manager.loaded {
+                        print("Loaded \(g_preset_manager.count) preset names.")
+                        print("Start loading powder data ...")
+                        BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.POWDER_NAME_BY_INDEX, parameter: Int8(1))
+                    } else {
+                        let _data: [Int8] = [BLE_COMMANDS.PRESET_NAME_BY_INDEX, Int8(next_index)]
+                        let outgoingData = NSData(bytes: _data, length: _data.count)
+                        BlePeripheral.connectedPeripheral?.writeValue(outgoingData as Data, for: BlePeripheral.connectedParameterCommandChar!, type: CBCharacteristicWriteType.withResponse)
+                    }
+                } else {
+                    print("update preset at \(preset_index) with '\(preset_name)")
+                    g_preset_manager.updateListItem(preset_name, index: Int(preset_index))
+                }
 
             } else if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Powder_Data_UUID) {
-                print("Processing read value in Powder Data Charactaristic")
+                print("############################# Processing Powder Data charactaristic")
                 print("Size of data: \(dd.count)")
                 print("data as array values: \(String(describing: Array(dd)))")
-                let powder_name = String(cString: Array(dd[0...17]))
+                let powder_index = Array(dd[0...3]).withUnsafeBytes { $0.load(as: Int32.self) }
+                let powder_name = String(cString: Array(dd[4...23]))
+                let powder_factor = Array(dd[24...27]).withUnsafeBytes { $0.load(as: Float32.self) }
+                let powder_version = Array(dd[28...31]).withUnsafeBytes { $0.load(as: Int32.self) }
+                //TODO: parse lot number (text)
+                print("Powder Index: \(powder_index)")
+                print("Powder Number: \(powder_index+1)")
                 print("Powder Name: '\(powder_name)'")
-                //powderNameLabel.text = powder_name.trimmingCharacters(in: .whitespacesAndNewlines)
-                powderNameLabel.text = "Powder:  \(powder_name.trimmingCharacters(in: .whitespacesAndNewlines))"
-            } else if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Target_UUID) {
-                if let target_name = (String(data: dd, encoding: String.Encoding.ascii)) {
-                    targetWeightLabel.text = "Charge:  \(target_name.trimmingCharacters(in: .whitespacesAndNewlines))"
+                print("Powder Factor: '\(powder_factor)'")
+                print("Lot Number: TODO")
+                print("Powder Version: \(powder_version)")
+                let powder = PowderManager.PowderData(
+                    powder_number: Int(powder_index+1),
+                    powder_name: powder_name,
+                    powder_factor: powder_factor,
+                    powder_version: Int16(powder_version)
+                )
+                g_powder_manager.currentPowder = powder
+
+            } else if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Powder_List_Item_UUID) {
+                print("############################# Powder List Item Charactaristic")
+                print("Size of data: \(dd.count)")
+                print("data as array values: \(String(describing: Array(dd)))")
+                let powder_index = Array(dd[0...3]).withUnsafeBytes { $0.load(as: Int32.self) }
+                //print("preset_index: \(preset_index)")
+                let powder_empty = dd[4...4].withUnsafeBytes { $0.load(as: Bool.self) }
+                var powder_name: String
+                if powder_empty {
+                    powder_name = "EMPTY"
                 } else {
-                    print("Failed to decode charactaristic data: \(CBUUIDs.BLE_Characteristic_Target_UUID)")
+                    powder_name = String(cString: Array(dd[5...23]))
+                }
+                if g_powder_manager.isLoading {
+                    print("Add '\(powder_name)' to powder list")
+                    g_powder_manager.addListItem(powder_name)
+                    let progress: Float = Float(50 + powder_index)/75.0
+                    progressView.progress = progress
+                    let next_index = powder_index + 1
+                    if g_powder_manager.loaded {
+                        print("Loaded \(g_powder_manager.count) powder names.")
+                        print("All data loaded, setup the screen.")
+                        title = "PowderThrow: Ready."
+                        spinnerView.stopAnimating()
+                        progressView.isHidden = true
+                        isLoadingData = false
+                        
+                        //TODO: main screen use this data from scale object.
+                        //TODO: set preset (including powder) in scale object upon select.
+                        //TODO: display scale preset/powder info on LCD as well, not manager
+                        
+                        //TESTING: load current preset data for config current preset index
+                        BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.PRESET_DATA_BY_INDEX, parameter: Int8(g_configData.preset))
+                        presetNameLabel.text = g_preset_manager.currentPreset.preset_name
+                        powderNameLabel.text = g_powder_manager.currentPowder.powder_name
+                        if g_rundata_manager.currentRunData.scale_in_grains {
+                            let val = (g_preset_manager.currentPreset.charge_weight * 100).rounded() / 100
+                            targetWeightLabel.text = "\(val) gn"
+                        } else {
+                            let val = (g_preset_manager.currentPreset.charge_weight * GM_TO_GN_FACTOR * 1000).rounded() / 1000
+                            targetWeightLabel.text = "\(val) g"
+                        }
+                        presetNameLabel.isHidden = false
+                        powderNameLabel.isHidden = false
+                        targetWeightLabel.isHidden = false
+                        runButton.isEnabled = true
+                        runButton.isHidden = false
+                        runButton.layer.backgroundColor = UIColor.systemBlue.cgColor
+                        presetsButton.isEnabled = true
+                        presetsButton.layer.backgroundColor = UIColor.systemBlue.cgColor
+                        presetsButton.isHidden = false
+                        settingsButton.isEnabled = true
+                        settingsButton.layer.backgroundColor = UIColor.systemBlue.cgColor
+                        settingsButton.isHidden = false
+
+                    } else {
+                        let _data: [Int8] = [BLE_COMMANDS.POWDER_NAME_BY_INDEX, Int8(next_index)]
+                        let outgoingData = NSData(bytes: _data, length: _data.count)
+                        BlePeripheral.connectedPeripheral?.writeValue(outgoingData as Data, for: BlePeripheral.connectedParameterCommandChar!, type: CBCharacteristicWriteType.withResponse)
+                    }
+                } else {
+                    print("update powder at \(powder_index) with '\(powder_name)")
+                    g_powder_manager.updateListItem(powder_name, index: Int(powder_index))
                 }
             }
         } else {
@@ -386,7 +528,7 @@ extension  ViewController: CBPeripheralDelegate {
             print("Error discovering services: error")
             return
         }
-        print("Message sent")
+        //print("Message sent")
     }
 
     func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {

@@ -1,6 +1,6 @@
 //
 //  SceneDelegate.swift
-//  BLEButton
+//  PowderThrow
 //
 //  Created by David Veach on 3/10/22.
 //

@@ -17,10 +17,21 @@ class  SettingsViewController: UIViewController {
     @IBOutlet weak var fscalepTextField: UITextField!
     @IBOutlet weak var decelLimitTextField: UITextField!
     
-    @IBOutlet weak var settingsPicker: UIPickerView!
-    
-    let digits = ["0","1","2","3","4","5","6","7","8","9"]
-    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if let nav = self.navigationController {
+            let isPopping = !nav.viewControllers.contains(self)
+            if isPopping {
+                // popping off nav
+                BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SET_SYSTEM_STATE, parameter: Int8(RunDataManager.system_state.Menu.rawValue))
+                print("TODO: remove self from listeners when implemented for settings")
+            } 
+        } else {
+            // not on nav at all
+            print("ERROR: View \(String(describing: self)) is not on nav controller at all!")
+        }
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -28,29 +39,12 @@ class  SettingsViewController: UIViewController {
 
         //TODO: handle mode change to grams!
 
-        configVersionLabel.text = "Config Version: \(ConfigData.config_version)"
-        bumpThreshTextField.text = String(format: "%4.2f", ConfigData.bump_threshold)
-        toleranceTextField.text = String(format: "%.2f", ConfigData.gn_tolerance)
-        fscalepTextField.text = String(format: "%.1f", ConfigData.fscaleP)
-        decelLimitTextField.text = String(format: "%d", ConfigData.decel_limit)
+        configVersionLabel.text = "Config Version: \(g_configData.config_version)"
+        bumpThreshTextField.text = String(format: "%4.2f", g_configData.bump_threshold)
+        toleranceTextField.text = String(format: "%.2f", g_configData.gn_tolerance)
+        fscalepTextField.text = String(format: "%.1f", g_configData.fscaleP)
+        decelLimitTextField.text = String(format: "%d", g_configData.decel_limit)
                 
-        settingsPicker.dataSource = self
-        settingsPicker.delegate = self
-    }
-}
-
-extension SettingsViewController: UIPickerViewDataSource {
-    func numberOfComponents(in pickerView: UIPickerView) -> Int {
-        return 4
-    }
-    
-    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return digits.count
-    }
-}
-
-extension SettingsViewController: UIPickerViewDelegate {
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return digits[row]
+        BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SET_SYSTEM_STATE, parameter: Int8(RunDataManager.system_state.Settings.rawValue))
     }
 }

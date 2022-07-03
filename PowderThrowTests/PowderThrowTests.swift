@@ -1,6 +1,6 @@
 //
-//  BLEButtonTests.swift
-//  BLEButtonTests
+//  PowderThrowTests.swift
+//  PowderThrowTests
 //
 //  Created by David Veach on 3/10/22.
 //
