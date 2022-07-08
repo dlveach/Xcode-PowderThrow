@@ -22,13 +22,12 @@ class  PowdersViewController: UIViewController, UITextFieldDelegate, PowderChang
     @IBOutlet weak var lotNumberField: UITextField!
     @IBOutlet weak var cancelButton: UIButton!
     @IBOutlet weak var editSaveButton: UIButton!
-    @IBOutlet weak var selectButton: UIButton!
     @IBOutlet weak var powderPickerView: UIPickerView!
     
     
     // Custom back button action
     @objc func back(sender: UIBarButtonItem) {
-        if _isEditing || selectButton.isHidden == false {
+        if _isEditing {
             let backAlert = UIAlertController(title: "Go Back", message: "Unsaved changes will be lost.", preferredStyle: UIAlertController.Style.alert)
             backAlert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { (action: UIAlertAction!) in
                 // user pressed Ok.  Pop view.
@@ -74,6 +73,7 @@ class  PowdersViewController: UIViewController, UITextFieldDelegate, PowderChang
         powderNameField.delegate = self
         powderFactorField.delegate = self
         lotNumberField.delegate = self
+        
         // add self as listener for powder update events
         g_powder_manager.addListener(self)
         
@@ -83,8 +83,9 @@ class  PowdersViewController: UIViewController, UITextFieldDelegate, PowderChang
 
         // style buttons
         editSaveButton.layer.cornerRadius = 8
+        editSaveButton.setTitle("Edit", for: UIControl.State.normal)
         cancelButton.layer.cornerRadius = 8
-        selectButton.layer.cornerRadius = 8
+        cancelButton.isHidden = true;
 
         //set up preset picker
         powderPickerView.layer.backgroundColor = UIColor.systemBlue.cgColor
@@ -92,6 +93,7 @@ class  PowdersViewController: UIViewController, UITextFieldDelegate, PowderChang
         powderPickerView.dataSource = self
         powderPickerView.delegate = self
         powderPickerView.selectRow(Int(g_powder_manager.currentPowder.powder_number-1), inComponent: 0, animated: false)
+        
         powderNameField.text = g_powder_manager.currentPowder.powder_name
         let val = (g_powder_manager.currentPowder.powder_factor * 100000).rounded() / 100000  //5 decimal places
         powderFactorField.text = String(val)
@@ -109,7 +111,8 @@ class  PowdersViewController: UIViewController, UITextFieldDelegate, PowderChang
         powderFactorField.text = String(val)
         lotNumberField.text = "TODO"
         powderPickerView.selectRow(Int(new_powder.powder_number-1), inComponent: 0, animated: false)
-        selectButton.isHidden = false
+        
+        print("TODO: powder select request if selected powder changed")
     }
     
     // MARK: - Button Handlers
@@ -121,9 +124,8 @@ class  PowdersViewController: UIViewController, UITextFieldDelegate, PowderChang
             }
             editSaveButton.setTitle("Edit", for: UIControl.State.normal)
             cancelButton.isHidden = true
-            print("TODO: save data in text fields")
+            print("TODO: save data in powder edit text fields")
             //set fields inactive for editing
-            selectButton.isHidden = false
             powderNameField.backgroundColor = UIColor.black
             powderNameField.textColor = UIColor.white
             powderFactorField.backgroundColor = UIColor.black
@@ -134,7 +136,6 @@ class  PowdersViewController: UIViewController, UITextFieldDelegate, PowderChang
             _isEditing = false
             powderPickerView.isUserInteractionEnabled = true
             powderPickerView.layer.backgroundColor = UIColor.systemBlue.cgColor
-            selectButton.isHidden = true // saved data is already selected
         } else {
             _isEditing = true
             powderNameField.backgroundColor = UIColor.white
@@ -151,7 +152,6 @@ class  PowdersViewController: UIViewController, UITextFieldDelegate, PowderChang
             enableTextFields()
             powderPickerView.isUserInteractionEnabled = false
             powderPickerView.layer.backgroundColor = UIColor.gray.cgColor
-            selectButton.isHidden = true
         }
     }
     
@@ -174,22 +174,9 @@ class  PowdersViewController: UIViewController, UITextFieldDelegate, PowderChang
             disableTextFields()
             powderPickerView.isUserInteractionEnabled = true
             powderPickerView.layer.backgroundColor = UIColor.systemBlue.cgColor
-            //check if picker row != current powder, show button if it's not
-            if powderPickerView.selectedRow(inComponent: 0) + 1 != g_powder_manager.currentPowder.powder_number {
-                selectButton.isHidden = false
-            }
         }
     }
-    
-    @IBAction func selectButtonAction(_ sender: Any) {
-        print("TODO: select powder button action")
-        //TODO: update current preset pop viewcontroller
-        selectButton.isHidden = true
-        let index = Int32(powderPickerView.selectedRow(inComponent: 0))
-        //BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SET_CURRENT_POWDER, parameter: Int8(row))
-        g_preset_manager.setPresetPowder(index)
-    }
-    
+        
     // MARK: - Form Validation
     
     @IBAction func powderNameChanged(_ sender: Any) {
@@ -314,7 +301,7 @@ extension PowdersViewController: UIPickerViewDelegate {
     }
 
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        print("Powder Picker, selecting row: \(row), Powder: \(g_powder_manager.getListItemAt(row))")
+        print("Powder Picker, selected row: \(row): \(g_powder_manager.getListItemAt(row)), Powder Manager current powder number: \(g_powder_manager.currentPowder.powder_number)")
         if row + 1 != g_powder_manager.currentPowder.powder_number {
             BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.POWDER_DATA_BY_INDEX, parameter: Int8(row+1))
         }

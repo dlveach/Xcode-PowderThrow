@@ -37,13 +37,14 @@ class  SettingsViewController: UIViewController {
         
         title = "Settings"
 
-        //TODO: handle mode change to grams!
-
-        configVersionLabel.text = "Config Version: \(g_configData.config_version)"
-        bumpThreshTextField.text = String(format: "%4.2f", g_configData.bump_threshold)
-        toleranceTextField.text = String(format: "%.2f", g_configData.gn_tolerance)
-        fscalepTextField.text = String(format: "%.1f", g_configData.fscaleP)
-        decelLimitTextField.text = String(format: "%d", g_configData.decel_limit)
+        configVersionLabel.text = "Config Version: \(g_config_data_manager.currentConfigData.config_version)"
+        bumpThreshTextField.text = String(format: "%4.2f", g_config_data_manager.currentConfigData.bump_threshold)
+        toleranceTextField.text = String(format: "%.2f", g_config_data_manager.currentConfigData.gn_tolerance)
+        fscalepTextField.text = String(format: "%.1f", g_config_data_manager.currentConfigData.fscaleP)
+        decelLimitTextField.text = String(format: "%d", g_config_data_manager.currentConfigData.decel_limit)
+        
+        //TODO: Trickler Speed setting
+        print("TODO: Trickler Speed setting field")
                 
         BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SET_SYSTEM_STATE, parameter: Int8(RunDataManager.system_state.Settings.rawValue))
     }

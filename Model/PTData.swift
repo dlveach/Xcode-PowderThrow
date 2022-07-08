@@ -12,6 +12,7 @@ import Foundation
 let MAX_NAME_LEN = 16
 let GM_TO_GN_FACTOR: Float = Float(0.06479891)
 
+/*
 // MARK: - Config Data
 public struct _config_data {
     var preset = Int16(0)
@@ -25,6 +26,7 @@ public struct _config_data {
 }
 
 public var g_configData = _config_data()
+*/
 
 // MARK: - Preset Manager
 protocol PresetChangeListener: AnyObject {
@@ -82,7 +84,7 @@ class PresetManager {
     // Add a listener to the list of listeners
     func addListener(_ listener: PresetChangeListener) {
         listeners.append(listener)
-        print("---->  there are now \(listeners.count) preset listeners")
+        //print("---->  there are now \(listeners.count) preset listeners")
     }
     
     // Remove a specific listener from the list of listeners
@@ -108,7 +110,7 @@ class PresetManager {
     }
     
     func addListItem(_ name: String) {
-        print("addListItem()")
+        //print("addListItem()")
         preset_name_list.append(name)
         count = preset_name_list.count
         if count == 50 {
@@ -137,7 +139,7 @@ class PresetManager {
 
     func BLEWritePresetData() {
         print("BLEWritePresetData()")
-        // trying a HACK: to get the preset data structure into bytes to send over BLE.
+        // Serialize preset data into bytes to send over BLE.
         let preset_number_data = Data(bytes: &_currentPresetData.preset_number, count: MemoryLayout<Int32>.stride)
         let charge_weight_data = Data(bytes: &_currentPresetData.charge_weight, count: MemoryLayout<Float32>.stride)
         let powder_index_data = Data(bytes: &_currentPresetData.powder_index, count: MemoryLayout<Int32>.stride)
@@ -211,6 +213,7 @@ class PowderManager {
 
     // Invoke the "changed" method on all listeners
     func invoke() {
+        print("PowderManager invoke()")
         for listener in listeners {
             listener.powderChanged(to: _currentPowder)
         }
@@ -240,7 +243,7 @@ class PowderManager {
     }
 
     func addListItem(_ name: String) {
-        print("addListItem()")
+        //print("addListItem()")
         powder_name_list.append(name)
         count = powder_name_list.count
         if count == 25 {
@@ -250,7 +253,7 @@ class PowderManager {
     }
 
     func updateListItem(_ name: String, index: Int) {
-        print("updateListItem()")
+        //print("updateListItem()")
         if isLoading { return }
         if index >= 0 && index < 25 {
             powder_name_list[index] = name
@@ -309,6 +312,7 @@ class RunDataManager {
         case Powders_Edit
         case Presets
         case Presets_Edit
+        
         var description: String {
             return "\(self)".replacingOccurrences(of: "_", with: " ")
         }
@@ -324,6 +328,7 @@ class RunDataManager {
         case On_Target
         case Over_Target
         case Undefined
+        
         var description: String {
             return "\(self)".replacingOccurrences(of: "_", with: " ")
         }
@@ -373,5 +378,67 @@ class RunDataManager {
             invoke()
         }
     }
-
 }
+
+// MARK: - ConfigData Manager
+
+protocol ConfigDataChangeListener: AnyObject {
+    func configDataChanged(to new_data: ConfigDataManager.ConfigData)
+}
+
+let g_config_data_manager = ConfigDataManager()
+
+class ConfigDataManager {
+    
+    //Data from storage
+    struct ConfigData {
+        var preset: Int32 = Int32(0)
+        var fscaleP: Float32 = Float32(0.0)
+        var decel_threshold: Float32 = Float32(0.0)
+        var bump_threshold: Float32 = Float32(0.0)
+        var decel_limit: Int32 = Int32(0)
+        var gn_tolerance: Float32 = Float32(0.0)
+        var trickler_speed: Int32 = Int32(0)
+        var config_version: Int32 = Int32(0)
+    }
+
+    // Data for the current preset
+    private var _current: ConfigData
+    private var listeners: [ConfigDataChangeListener]
+
+    init() {
+        _current = ConfigData()
+        listeners = []
+    }
+
+    // Invoke the "changed" method on all listeners
+    func invoke() {
+        for listener in listeners {
+            listener.configDataChanged(to: _current)
+        }
+    }
+    
+    // Add a listener to the list of listeners
+    func addListener(_ listener: ConfigDataChangeListener) {
+        listeners.append(listener)
+    }
+    
+    // Remove a specific listener from the list of listeners
+    func removeListener(_ listener: ConfigDataChangeListener) {
+        if let index = listeners.firstIndex(where: { $0 === listener }) {
+            listeners.remove(at: index)
+        }
+    }
+
+    // Access to current powder data
+    var currentConfigData: ConfigData {
+        get {
+            return _current
+        }
+        set {
+            _current = newValue
+            invoke()
+        }
+    }
+}
+

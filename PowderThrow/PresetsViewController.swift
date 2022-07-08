@@ -10,7 +10,7 @@
 import UIKit
 import CoreBluetooth
 
-class  PresetsViewController: UIViewController, UITextFieldDelegate, PresetChangeListener {
+class  PresetsViewController: UIViewController, UITextFieldDelegate, PresetChangeListener, PowderChangeListener {
     
     private var _isEditing = false
     
@@ -18,7 +18,6 @@ class  PresetsViewController: UIViewController, UITextFieldDelegate, PresetChang
     @IBOutlet weak var presetsPickerView: UIPickerView!
     @IBOutlet weak var editSaveButton: UIButton!
     @IBOutlet weak var cancelButton: UIButton!
-    @IBOutlet weak var selectPresetButton: UIButton!
     
     @IBOutlet weak var presetNameTextField: UITextField!
     @IBOutlet weak var chargeWtTextField: UITextField!
@@ -36,20 +35,13 @@ class  PresetsViewController: UIViewController, UITextFieldDelegate, PresetChang
     
     // Custom back button action
     @objc func back(sender: UIBarButtonItem) {
-        if _isEditing || selectPresetButton.isHidden == false {
+        if _isEditing {
             let backAlert = UIAlertController(title: "Go Back", message: "Unsaved changes will be lost.", preferredStyle: UIAlertController.Style.alert)
-            backAlert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { (action: UIAlertAction!) in
-                // user pressed Ok.  Pop view.
-                _ = self.navigationController?.popViewController(animated: true)
-
-            }))
-            backAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action: UIAlertAction!) in
-                // Stay on current view.
-            }))
+            backAlert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { (action: UIAlertAction!) in _ = self.navigationController?.popViewController(animated: true) }))
+            backAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action: UIAlertAction!) in }))
             present(backAlert, animated: true, completion: nil)
             return
         }
-        // No unsaved changes, ok to pop view.
         _ = self.navigationController?.popViewController(animated: true)
     }
 
@@ -63,7 +55,6 @@ class  PresetsViewController: UIViewController, UITextFieldDelegate, PresetChang
                 g_preset_manager.removeListener(self)
             } 
         } else {
-            // not on nav at all
             print("ERROR: View \(String(describing: self)) is not on nav controller at all!")
         }
     }
@@ -79,7 +70,6 @@ class  PresetsViewController: UIViewController, UITextFieldDelegate, PresetChang
         let newBackButton = UIBarButtonItem(title: "< Main", style: UIBarButtonItem.Style.plain, target: self, action: #selector(PresetsViewController.back(sender:)))
         self.navigationItem.leftBarButtonItem = newBackButton
 
-        
         presetNameTextField.delegate = self
         chargeWtTextField.delegate = self
         bulletNameTextField.delegate = self
@@ -87,6 +77,7 @@ class  PresetsViewController: UIViewController, UITextFieldDelegate, PresetChang
         brassNameTextField.delegate = self
                 
         g_preset_manager.addListener(self)
+        g_powder_manager.addListener(self)
         
         // Enable dismissing the keyboard popup by tapping outside
         let tapGesture = UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing))
@@ -95,18 +86,27 @@ class  PresetsViewController: UIViewController, UITextFieldDelegate, PresetChang
         editSaveButton.layer.cornerRadius = 8
         cancelButton.layer.cornerRadius = 8
         powdersButton.layer.cornerRadius = 8
-        selectPresetButton.layer.cornerRadius = 8
 
         //set up default view conditions
         cancelButton.isHidden = true
         editSaveButton.setTitle("Edit", for: UIControl.State.normal)
         powdersButton.isHidden = true
-        selectPresetButton.isHidden = true
         PowderNameTextField.isEnabled = false
-        PowderNameTextField.text = ""
+        PowderNameTextField.text = "--"
 
-        disableTextFields()
-        
+        presetNameTextField.isEnabled = false
+        chargeWtTextField.isEnabled = false
+        bulletNameTextField.isEnabled = false
+        bulletWtTextField.isEnabled = false
+        brassNameTextField.isEnabled = false
+        presetNameLabel.layer.borderWidth = 0
+        chargeWtLabel.layer.borderWidth = 0
+        powderNameLabel.layer.borderWidth = 0
+        bulletNameLabel.layer.borderWidth = 0
+        bulletWtLabel.layer.borderWidth = 0
+        brassNameLabel.layer.borderWidth = 0
+        powdersButton.isHidden = true
+
         //set up preset picker
         presetsPickerView.layer.backgroundColor = UIColor.systemBlue.cgColor
         presetsPickerView.layer.cornerRadius = 10
@@ -116,7 +116,11 @@ class  PresetsViewController: UIViewController, UITextFieldDelegate, PresetChang
         //Set picker & textfields to current preset.
         presetsPickerView.selectRow(Int(g_preset_manager.currentPreset.preset_number-1), inComponent: 0, animated: false)
         presetNameTextField.text = g_preset_manager.currentPreset.preset_name.trimmingCharacters(in: .whitespacesAndNewlines)
-        PowderNameTextField.text = g_powder_manager.getListItemAt(Int(g_preset_manager.currentPreset.powder_index))
+        if g_preset_manager.currentPreset.powder_index >= 0 {
+            PowderNameTextField.text = g_powder_manager.getListItemAt(Int(g_preset_manager.currentPreset.powder_index))
+        } else {
+            PowderNameTextField.text = "--"
+        }
         chargeWtTextField.text = String(g_preset_manager.currentPreset.charge_weight)
         bulletNameTextField.text = g_preset_manager.currentPreset.bullet_name.trimmingCharacters(in: .whitespacesAndNewlines)
         bulletWtTextField.text = String(g_preset_manager.currentPreset.bullet_weight)
@@ -126,158 +130,163 @@ class  PresetsViewController: UIViewController, UITextFieldDelegate, PresetChang
 
     }
         
-    // MARK: - Preset Change callback
+    // MARK: - Change Listener Callbacks
     
     func presetChanged(to new_preset: PresetManager.PresetData) {
         //update UI fields
         presetNameTextField.text = new_preset.preset_name.trimmingCharacters(in: .whitespacesAndNewlines)
         let val = (new_preset.charge_weight * 100).rounded() / 100  //two decimal places
         chargeWtTextField.text = String(val)
-        PowderNameTextField.text = g_powder_manager.getListItemAt(Int(g_preset_manager.currentPreset.powder_index))
+        if new_preset.powder_index >= 0 {
+            PowderNameTextField.text = g_powder_manager.getListItemAt(Int(g_preset_manager.currentPreset.powder_index))
+        } else {
+            PowderNameTextField.text = "--"
+        }
         bulletNameTextField.text = new_preset.bullet_name.trimmingCharacters(in: .whitespacesAndNewlines)
         bulletWtTextField.text = String(new_preset.bullet_weight)
         brassNameTextField.text = new_preset.brass_name.trimmingCharacters(in: .whitespacesAndNewlines)
         presetsPickerView.selectRow(Int(new_preset.preset_number-1), inComponent: 0, animated: false)
-        if g_preset_manager.currentPreset.preset_number != new_preset.preset_number {
-            selectPresetButton.isHidden = false;
-        }
+    }
+        
+    func powderChanged(to new_powder: PowderManager.PowderData) {
+        PowderNameTextField.text = new_powder.powder_name
     }
     
     // MARK: - Button Handlers
     
-    @IBAction func selectPresetButtonAction(_ sender: Any) {
-        print("TODO: select preset button action")
-        //TODO: update current preset pop viewcontroller
-        selectPresetButton.isHidden = true  
-        let row = presetsPickerView.selectedRow(inComponent: 0) + 1
-        BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SET_CURRENT_PRESET, parameter: Int8(row))
-    }
-
     @IBAction func editSaveButtonAction(_ sender: Any) {
         if _isEditing {
-            if anyError() {
-                return
-            }
-            editSaveButton.setTitle("Edit", for: UIControl.State.normal)
-            cancelButton.isHidden = true
+            if anyError() { return }
             savePresetData()
-            //set fields inactive for editing
-            selectPresetButton.isHidden = false
-            presetNameTextField.backgroundColor = UIColor.black
-            presetNameTextField.textColor = UIColor.white
-            chargeWtTextField.backgroundColor = UIColor.black
-            chargeWtTextField.textColor = UIColor.white
-            //PowderNameTextField.backgroundColor = UIColor.black
-            //PowderNameTextField.textColor = UIColor.white
-            bulletNameTextField.backgroundColor = UIColor.black
-            bulletWtTextField.textColor = UIColor.white
-            bulletWtTextField.backgroundColor = UIColor.black
-            bulletWtTextField.textColor = UIColor.white
-            brassNameTextField.backgroundColor = UIColor.black
-            brassNameTextField.textColor = UIColor.white
-            disableTextFields()
-            _isEditing = false
-            presetsPickerView.isUserInteractionEnabled = true
-            presetsPickerView.layer.backgroundColor = UIColor.systemBlue.cgColor
-
+            clearEditing(reset: false)
         } else {
-            _isEditing = true
-            presetNameTextField.backgroundColor = UIColor.white
-            presetNameTextField.textColor = UIColor.black
-            chargeWtTextField.backgroundColor = UIColor.white
-            chargeWtTextField.textColor = UIColor.black
-            //PowderNameTextField.backgroundColor = UIColor.white
-            //PowderNameTextField.textColor = UIColor.black
-            bulletNameTextField.backgroundColor = UIColor.white
-            bulletNameTextField.textColor = UIColor.black
-            bulletWtTextField.backgroundColor = UIColor.white
-            bulletWtTextField.textColor = UIColor.black
-            brassNameTextField.backgroundColor = UIColor.white
-            brassNameTextField.textColor = UIColor.black
-            editSaveButton.setTitle("Save", for: UIControl.State.normal)
-            if anyError() {
-                editSaveButton.isHidden = true
-            }
-            cancelButton.isHidden = false
-            enableTextFields()
-            presetsPickerView.isUserInteractionEnabled = false
-            presetsPickerView.layer.backgroundColor = UIColor.gray.cgColor
+            if anyError() { editSaveButton.isHidden = true }
+            setEditing()
         }
     }
     
+    @IBAction func cancelButtonAction(_ sender: Any) {
+        if _isEditing { clearEditing(reset: true) }
+    }
+    
+    func setEditing() {
+        _isEditing = true
+        editSaveButton.setTitle("Save", for: UIControl.State.normal)
+        cancelButton.isHidden = false
+        presetNameTextField.backgroundColor = UIColor.white
+        presetNameTextField.textColor = UIColor.black
+        chargeWtTextField.backgroundColor = UIColor.white
+        chargeWtTextField.textColor = UIColor.black
+        bulletNameTextField.backgroundColor = UIColor.white
+        bulletNameTextField.textColor = UIColor.black
+        bulletWtTextField.backgroundColor = UIColor.white
+        bulletWtTextField.textColor = UIColor.black
+        brassNameTextField.backgroundColor = UIColor.white
+        brassNameTextField.textColor = UIColor.black
+        presetNameTextField.isEnabled = true
+        chargeWtTextField.isEnabled = true
+        bulletNameTextField.isEnabled = true
+        bulletWtTextField.isEnabled = true
+        brassNameTextField.isEnabled = true
+        powdersButton.isHidden = false
+        presetsPickerView.isUserInteractionEnabled = false
+        presetsPickerView.layer.backgroundColor = UIColor.gray.cgColor
+    }
+    
+    func clearEditing(reset: Bool) {
+        _isEditing = false
+        editSaveButton.setTitle("Edit", for: UIControl.State.normal)
+        cancelButton.isHidden = true
+        presetNameTextField.backgroundColor = UIColor.black
+        presetNameTextField.textColor = UIColor.white
+        chargeWtTextField.backgroundColor = UIColor.black
+        chargeWtTextField.textColor = UIColor.white
+        bulletNameTextField.backgroundColor = UIColor.black
+        bulletNameTextField.textColor = UIColor.white
+        bulletWtTextField.backgroundColor = UIColor.black
+        bulletWtTextField.textColor = UIColor.white
+        brassNameTextField.backgroundColor = UIColor.black
+        brassNameTextField.textColor = UIColor.white
+        presetNameTextField.isEnabled = false
+        chargeWtTextField.isEnabled = false
+        bulletNameTextField.isEnabled = false
+        bulletWtTextField.isEnabled = false
+        brassNameTextField.isEnabled = false
+        presetNameLabel.layer.borderWidth = 0
+        chargeWtLabel.layer.borderWidth = 0
+        powderNameLabel.layer.borderWidth = 0
+        bulletNameLabel.layer.borderWidth = 0
+        bulletWtLabel.layer.borderWidth = 0
+        brassNameLabel.layer.borderWidth = 0
+        powdersButton.isHidden = true
+        presetsPickerView.isUserInteractionEnabled = true
+        presetsPickerView.layer.backgroundColor = UIColor.systemBlue.cgColor
+        if reset {
+            presetNameTextField.text = g_preset_manager.currentPreset.preset_name.trimmingCharacters(in: .whitespacesAndNewlines)
+            let val = (g_preset_manager.currentPreset.charge_weight * 100).rounded() / 100
+            chargeWtTextField.text = String(val)
+            if g_preset_manager.currentPreset.powder_index >= 0 {
+                PowderNameTextField.text = g_powder_manager.getListItemAt(Int(g_preset_manager.currentPreset.powder_index))
+            } else {
+                PowderNameTextField.text = "--"
+            }
+            bulletNameTextField.text = g_preset_manager.currentPreset.bullet_name.trimmingCharacters(in: .whitespacesAndNewlines)
+            bulletWtTextField.text = String(g_preset_manager.currentPreset.bullet_weight)
+            brassNameTextField.text = g_preset_manager.currentPreset.brass_name.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+    }
+    
+    // MARK: - Save Preset Data
+    
+    // Update current preset with view field data.  Write current preset to BLE to save on peripheral.
+    // TODO: figure out better way than padding blanks.  Pad with null chars?  Would be better maybe.
     func savePresetData() {
         print("savePresetData()")
         if anyError() { return }
-        //Just testing an approach
+        // make a copy of the data to avoid triggering "invoke" on every change
+        var new_preset = PresetManager.PresetData()
+        new_preset.preset_number = g_preset_manager.currentPreset.preset_number - 1
+        new_preset.powder_index = Int32(g_powder_manager.currentPowder.powder_number - 1)
         if let str = presetNameTextField.text {
             let fmtstr = str.withCString { String(format: "%-16s", $0) }
-            g_preset_manager.currentPreset.preset_name = fmtstr
+            new_preset.preset_name = fmtstr
+            //TODO: should this happen by the peripheral sending a list item update on saving the data?
+            g_preset_manager.updateListItem(str, index: Int(g_preset_manager.currentPreset.preset_number)-1)
         } else {
             print("Failed to get presetNameTextField.text")
             return
         }
         if let str = bulletNameTextField.text {
             let fmtstr = str.withCString { String(format: "%-16s", $0) }
-            g_preset_manager.currentPreset.bullet_name = fmtstr
+            new_preset.bullet_name = fmtstr
         } else {
             print("Failed to get bulletNameTextField.text")
             return
         }
         if let str = brassNameTextField.text {
             let fmtstr = str.withCString { String(format: "%-16s", $0) }
-            g_preset_manager.currentPreset.brass_name = fmtstr
+            new_preset.brass_name = fmtstr
         } else {
             print("Failed to get brassNameTextField.text")
             return
         }
         if let val = Float32(chargeWtTextField.text!) {
-            g_preset_manager.currentPreset.charge_weight = val
+            new_preset.charge_weight = val
         } else {
             print("ERROR: charge weight field is not a floating point number!")
             return
         }
         if let val = Int32(bulletWtTextField.text!) {
-            g_preset_manager.currentPreset.bullet_weight = val
+            new_preset.bullet_weight = val
         } else {
             print("ERROR: bullet weight field is not an integer number!")
             return
         }
+        // Now update the current preset (triggers invoke on listeners)
+        g_preset_manager.currentPreset = new_preset
         g_preset_manager.BLEWritePresetData()
     }
 
-    @IBAction func cancelButtonAction(_ sender: Any) {
-        if _isEditing {
-            _isEditing = false
-            editSaveButton.setTitle("Edit", for: UIControl.State.normal)
-            editSaveButton.isHidden = false
-            cancelButton.isHidden = true
-            presetNameTextField.text = g_preset_manager.currentPreset.preset_name
-            let val = (g_preset_manager.currentPreset.charge_weight * 100).rounded() / 100
-            chargeWtTextField.text = String(val)
-            PowderNameTextField.text = g_powder_manager.getListItemAt(Int(g_preset_manager.currentPreset.powder_index))
-            bulletNameTextField.text = g_preset_manager.currentPreset.bullet_name
-            bulletWtTextField.text = String(g_preset_manager.currentPreset.bullet_weight)
-            brassNameTextField.text = g_preset_manager.currentPreset.brass_name
-            presetNameTextField.backgroundColor = UIColor.black
-            presetNameTextField.textColor = UIColor.white
-            chargeWtTextField.backgroundColor = UIColor.black
-            chargeWtTextField.textColor = UIColor.white
-            //PowderNameTextField.backgroundColor = UIColor.black
-            //PowderNameTextField.textColor = UIColor.white
-            bulletNameTextField.backgroundColor = UIColor.black
-            bulletWtTextField.textColor = UIColor.white
-            bulletWtTextField.backgroundColor = UIColor.black
-            bulletWtTextField.textColor = UIColor.white
-            brassNameTextField.backgroundColor = UIColor.black
-            brassNameTextField.textColor = UIColor.white
-            disableTextFields()
-            presetsPickerView.isUserInteractionEnabled = true
-            presetsPickerView.layer.backgroundColor = UIColor.systemBlue.cgColor
-            //TODO: check if picker row != current preset, show button if it's not
-            selectPresetButton.isHidden = true
-        }
-    }
-    
     // MARK: - Form Validation
     
     @IBAction func presetNameFieldChanged(_ sender: Any) {
@@ -391,9 +400,7 @@ class  PresetsViewController: UIViewController, UITextFieldDelegate, PresetChang
         }
         _ = anyError()
     }
-    
-    // MARK: - Support Functions
-    
+        
     func anyError() -> Bool {
 
         //bullet name, wt and brass name required:
@@ -410,31 +417,6 @@ class  PresetsViewController: UIViewController, UITextFieldDelegate, PresetChang
         }
     }
 
-    func enableTextFields() {
-        presetNameTextField.isEnabled = true
-        chargeWtTextField.isEnabled = true
-        bulletNameTextField.isEnabled = true
-        bulletWtTextField.isEnabled = true
-        brassNameTextField.isEnabled = true
-        powdersButton.isHidden = false
-        selectPresetButton.isHidden = true
-    }
-    
-    func disableTextFields() {
-        presetNameTextField.isEnabled = false
-        chargeWtTextField.isEnabled = false
-        bulletNameTextField.isEnabled = false
-        bulletWtTextField.isEnabled = false
-        brassNameTextField.isEnabled = false
-        presetNameLabel.layer.borderWidth = 0
-        chargeWtLabel.layer.borderWidth = 0
-        powderNameLabel.layer.borderWidth = 0
-        bulletNameLabel.layer.borderWidth = 0
-        bulletWtLabel.layer.borderWidth = 0
-        brassNameLabel.layer.borderWidth = 0
-        powdersButton.isHidden = true
-    }
-    
     func setTextFieldError(_ label: UILabel) {
         label.layer.borderWidth = 5
         label.layer.borderColor = UIColor.red.cgColor
@@ -478,15 +460,10 @@ extension PresetsViewController: UIPickerViewDelegate {
 
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         print("---> Preset Picker, selected row: \(row), Preset number: \(row+1), Preset name:  \(g_preset_manager.getListItemAt(row)), Manager's current preset number: \(g_preset_manager.currentPreset.preset_number), Manager's preset name: \(g_preset_manager.currentPreset.preset_name)")
-        
-        //TODO: compare with runtime preset, not manager!!!
-        if g_preset_manager.currentPreset.preset_number != row + 1 {
-            selectPresetButton.isHidden = false;
-        } else {
-            selectPresetButton.isHidden = true;
-        }
 
-        //TODO: only do this if it's a defined preset.  Don't request empty presets over BLE (that should happen in a save action when populating an empty preset)
+        //TODO: ??? only do this if it's a defined preset.  Don't request empty presets over BLE (save action should trigger a preset reload)
+        //For now: seems to work ok, getting empty preset from BLE peripheral is ok.  Maybe just a bit wasteful
+        
         if row + 1 != g_preset_manager.currentPreset.preset_number {
             BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.PRESET_DATA_BY_INDEX, parameter: Int8(row+1))
         }

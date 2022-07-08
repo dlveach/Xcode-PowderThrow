@@ -47,6 +47,8 @@ class RunThrowerViewController: UIViewController, RunDataChangeListener {
         estopButton.layer.cornerRadius = 8
         estopButton.isHidden = true
         estopButton.isEnabled = false
+        //decelThreshSlider.isContinuous = false
+        
 
         presetNameLabel.text = g_preset_manager.currentPreset.preset_name
         powderNameLabel.text = g_powder_manager.currentPowder.powder_name
@@ -63,18 +65,33 @@ class RunThrowerViewController: UIViewController, RunDataChangeListener {
         BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SET_SYSTEM_STATE, parameter: Int8(RunDataManager.system_state.Ready.rawValue))
     }
     
+    // Update the slider label if value changed (by tenths)
     @IBAction func decelThreshSliderValueChanged(_ sender: Any) {
         let val = (decelThreshSlider.value * 10).rounded() / 10
-        //only do updates if rounded slider val is diff from label
-        if (decelThreshSliderLabel.text == "\(val)") { return }
-        decelThreshSliderLabel.text = "\(val)"
-        //update the charactaristic
-        let _data = ("\(val)" as NSString).data(using: String.Encoding.utf8.rawValue)
-        BlePeripheral.connectedPeripheral?.writeValue(_data!, for: BlePeripheral.connectedDecelThreshChar!, type: CBCharacteristicWriteType.withResponse)
+        if (decelThreshSliderLabel.text != "\(val)") {
+            decelThreshSliderLabel.text = "\(val)"
+        }
+    }
+    
+    // Update BLE when finger lifted anywhere (don't send every value change)
+    @IBAction func decelThreshSliderTouchUpOutside(_ sender: Any) {
+        decelThreshSliderEndEdit()
+    }
+    @IBAction func decelThreshSliderTouchUpInside(_ sender: Any) {
+        decelThreshSliderEndEdit()
+    }
+    func decelThreshSliderEndEdit() {
+        var val = (decelThreshSlider.value * 10).rounded() / 10
+        if g_rundata_manager.currentRunData.decel_thresh != val {
+//            g_rundata_manager.currentRunData.decel_thresh = val  //gets set by BLE char?
+            let float_data = Data(bytes: &val, count: MemoryLayout<Float32>.stride)
+            BlePeripheral.connectedPeripheral?.writeValue(float_data, for: BlePeripheral.connectedDecelThreshChar!, type: CBCharacteristicWriteType.withResponse)
+        }
     }
     
     @IBAction func estopButtonAction(_ sender: Any) {
-        print("TODO: Emergency Stop")
+        print("---> TODO: Emergency Stop")
+
     }
     
    func runDataChanged(to new_data: RunDataManager.RunData) {
