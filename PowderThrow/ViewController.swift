@@ -384,8 +384,8 @@ extension  ViewController: CBPeripheralDelegate {
                 let powder_index = Array(dd[8...11]).withUnsafeBytes { $0.load(as: Int32.self) }
                 let preset_name = String(cString: Array(dd[12...28]))
                 let bullet_name = String(cString: Array(dd[29...45]))
-                let bullet_weight = Array(dd[46...49]).withUnsafeBytes { $0.load(as: Int32.self) }
-                let brass_name = String(cString: Array(dd[50...68]))
+                let bullet_weight = Array(dd[48...51]).withUnsafeBytes { $0.load(as: Int32.self) }
+                let brass_name = String(cString: Array(dd[52...68]))
                 let preset_version = Array(dd[72...75]).withUnsafeBytes { $0.load(as: Int32.self) }
                 print("Preset Index: \(preset_index)")
                 print("Preset Chg weight: \(preset_charge_weight)")
