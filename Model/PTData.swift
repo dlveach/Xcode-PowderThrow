@@ -10,6 +10,8 @@
 import Foundation
 
 let MAX_NAME_LEN = 16
+let MAX_PRESETS = 25
+let MAX_POWDERS = 25
 let GM_TO_GN_FACTOR: Float = Float(0.06479891)
 
 /*
@@ -37,14 +39,14 @@ let g_preset_manager = PresetManager()
 
 class PresetManager {
     struct PresetData {
+        var preset_version: Int32 = Int32(0)
         var preset_number: Int32 = Int32(0)
         var charge_weight: Float = Float32(0.0)
         var powder_index: Int32 = Int32(0)
-        var preset_name: String = String("                ")
-        var bullet_name: String = String("                ")
         var bullet_weight: Int32 = Int32(0)
-        var brass_name: String = String("                ")
-        var preset_version: Int32 = Int32(0)
+        var preset_name: String = String("--")
+        var bullet_name: String = String("--")
+        var brass_name: String = String("--")
     }
         
     private var _currentPresetData: PresetData
@@ -113,16 +115,16 @@ class PresetManager {
         //print("addListItem()")
         preset_name_list.append(name)
         count = preset_name_list.count
-        if count == 50 {
+        if count == MAX_PRESETS {
             loaded = true
             isLoading = false
         }
     }
 
     func updateListItem(_ name: String, index: Int) {
-        print("updateListItem()")
+        //print("updateListItem() with name: \(name), index: \(index)")
         if isLoading { return }
-        if index > 0 && index < 50 {
+        if index >= 0 && index < MAX_PRESETS {
             preset_name_list[index] = name
         } else {
             print("ERROR: updateListItemAt(): preset list index out of range.")
@@ -130,7 +132,7 @@ class PresetManager {
     }
     
     func getListItemAt(_ index: Int) -> String {
-        if index < 0 || index >= 50 {
+        if index < 0 || index >= MAX_PRESETS {
             print("ERROR: getListItemAt(): preset list index out of range.")
             return "";  // better return val?  nil?
         }
@@ -140,11 +142,11 @@ class PresetManager {
     func BLEWritePresetData() {
         print("BLEWritePresetData()")
         // Serialize preset data into bytes to send over BLE.
+        let preset_version_data = Data(bytes: &_currentPresetData.preset_version, count: MemoryLayout<Int32>.stride)
         let preset_number_data = Data(bytes: &_currentPresetData.preset_number, count: MemoryLayout<Int32>.stride)
         let charge_weight_data = Data(bytes: &_currentPresetData.charge_weight, count: MemoryLayout<Float32>.stride)
         let powder_index_data = Data(bytes: &_currentPresetData.powder_index, count: MemoryLayout<Int32>.stride)
         let bullet_weight_data = Data(bytes: &_currentPresetData.bullet_weight, count: MemoryLayout<Int32>.stride)
-        let preset_version_data = Data(bytes: &_currentPresetData.preset_version, count: MemoryLayout<Int32>.stride)
         var preset_name_data = _currentPresetData.preset_name.data(using: String.Encoding.utf8)
         preset_name_data!.append(0)
         var bullet_name_data = _currentPresetData.bullet_name.data(using: String.Encoding.utf8)
@@ -152,21 +154,20 @@ class PresetManager {
         var brass_name_data = _currentPresetData.brass_name.data(using: String.Encoding.utf8)
         brass_name_data!.append(0)
 
-        var data_to_send: Data = preset_number_data
-        data_to_send.append(charge_weight_data)
-        data_to_send.append(powder_index_data)
-        data_to_send.append(contentsOf: preset_name_data!)
-        data_to_send.append(contentsOf: bullet_name_data!)
-        data_to_send.append(bullet_weight_data)
-        data_to_send.append(contentsOf: brass_name_data!)
-        data_to_send.append(preset_version_data)
+        var _data: Data = preset_version_data
+        _data.append(preset_number_data)
+        _data.append(charge_weight_data)
+        _data.append(powder_index_data)
+        _data.append(bullet_weight_data)
+        _data.append(contentsOf: preset_name_data!)
+        _data.append(contentsOf: bullet_name_data!)
+        _data.append(contentsOf: brass_name_data!)
         
-        print("bytes to send: \(data_to_send.count)")
-        print("data_to_send: \(String(describing: Array(data_to_send)))")
+        print("bytes to send: \(_data.count)")
+        print("_data: \(String(describing: Array(_data)))")
         
-        BlePeripheral().writePresetData(outgoingData: data_to_send)
+        BlePeripheral().writePresetData(outgoingData: _data)
     }
-
 }
 
 // MARK: - Powder Manager
@@ -178,10 +179,11 @@ let g_powder_manager = PowderManager()
 
 class PowderManager {
     struct PowderData {
-        var powder_number: Int = Int(0) //<- TODO: fix Int32
-        var powder_name: String = String("")
-        var powder_factor: Float = Float(0.0) //<- TODO: fix Float32
-        var powder_version: Int16 = Int16(0) //<- TODO: fix Int32
+        var powder_version: Int32 = Int32(0)
+        var powder_number: Int32 = Int32(0)
+        var powder_factor: Float32 = Float32(0.0)
+        var powder_name: String = String("--")
+        var powder_lot: String = String("--")
     }
 
     // Data for the current preset
@@ -246,16 +248,16 @@ class PowderManager {
         //print("addListItem()")
         powder_name_list.append(name)
         count = powder_name_list.count
-        if count == 25 {
+        if count == MAX_POWDERS {
             loaded = true
             isLoading = false
         }
     }
 
     func updateListItem(_ name: String, index: Int) {
-        //print("updateListItem()")
+        print("updateListItem() with name: \(name), index: \(index)")
         if isLoading { return }
-        if index >= 0 && index < 25 {
+        if index >= 0 && index < MAX_POWDERS {
             powder_name_list[index] = name
         } else {
             print("ERROR: updateListItem(): powder list index out of range.")
@@ -263,11 +265,34 @@ class PowderManager {
     }
     
     func getListItemAt(_ index: Int) -> String {
-        if index < 0 || index >= 25 {
+        if index < 0 || index >= MAX_POWDERS {
             print("ERROR: getListItemAt(): powder list index out of range.")
             return "";  // better return val?  nil?
         }
         return powder_name_list[index]
+    }
+    
+    func BLEWritePowderData() {
+        print("BLEWritePowderData()")
+        // Serialize powder data into bytes to send over BLE.
+        let powder_version_data = Data(bytes: &_currentPowder.powder_version, count: MemoryLayout<Int32>.stride)
+        let powder_number_data = Data(bytes: &_currentPowder.powder_number, count: MemoryLayout<Int32>.stride)
+        let powder_factor_data = Data(bytes: &_currentPowder.powder_factor, count: MemoryLayout<Float32>.stride)
+        var powder_name_data = _currentPowder.powder_name.data(using: String.Encoding.utf8)
+        powder_name_data!.append(0)
+        var powder_lot_data = _currentPowder.powder_lot.data(using: String.Encoding.utf8)
+        powder_lot_data!.append(0)
+
+        var _data: Data = powder_version_data
+        _data.append(powder_number_data)
+        _data.append(powder_factor_data)
+        _data.append(contentsOf: powder_name_data!)
+        _data.append(contentsOf: powder_lot_data!)
+        
+        print("bytes to send: \(_data.count)")
+        print("_data: \(String(describing: Array(_data)))")
+        
+        BlePeripheral().writePowderData(outgoingData: _data)
     }
 }
 
@@ -440,5 +465,33 @@ class ConfigDataManager {
             invoke()
         }
     }
+
+    func BLEWriteConfigData() {
+        print("BLEWriteConfigData()")
+        // Serialize config data into bytes to send over BLE.
+        let preset_number_data = Data(bytes: &_current.preset, count: MemoryLayout<Int32>.stride)
+        let fscalep_data = Data(bytes: &_current.fscaleP, count: MemoryLayout<Float32>.stride)
+        let decel_thresh_data = Data(bytes: &_current.decel_threshold, count: MemoryLayout<Int32>.stride)
+        let bump_thresh_data = Data(bytes: &_current.bump_threshold, count: MemoryLayout<Float32>.stride)
+        let decel_limit_data = Data(bytes: &_current.decel_limit, count: MemoryLayout<Int32>.stride)
+        let gn_tolerance_data = Data(bytes: &_current.gn_tolerance, count: MemoryLayout<Float32>.stride)
+        let trickler_speed_data = Data(bytes: &_current.trickler_speed, count: MemoryLayout<Int32>.stride)
+        let config_version_data = Data(bytes: &_current.config_version, count: MemoryLayout<Int32>.stride)
+
+        var _data: Data = preset_number_data
+        _data.append(fscalep_data)
+        _data.append(decel_thresh_data)
+        _data.append(bump_thresh_data)
+        _data.append(decel_limit_data)
+        _data.append(gn_tolerance_data)
+        _data.append(trickler_speed_data)
+        _data.append(config_version_data)
+
+        print("bytes to send: \(_data.count)")
+        print("_data: \(String(describing: Array(_data)))")
+        
+        BlePeripheral().writeConfigData(outgoingData: _data)
+    }
+
 }
 

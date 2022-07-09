@@ -79,8 +79,9 @@ class  ViewController: UIViewController, PresetChangeListener, PowderChangeListe
 
     func presetChanged(to new_preset: PresetManager.PresetData) {
         print("main screen setting preset field")
-        
-        //TODO: check preset data & enable run button?
+        print("new preset charge weight: \(new_preset.charge_weight)")
+        print("g_powder_manager current powder.powder_factor: \(g_powder_manager.currentPowder.powder_factor)")
+        //check preset data & enable run button?
         if new_preset.charge_weight > 0 && g_powder_manager.currentPowder.powder_factor > 0 {
             presetNameLabel.text = new_preset.preset_name
             powderNameLabel.text = g_powder_manager.currentPowder.powder_name
@@ -114,7 +115,7 @@ class  ViewController: UIViewController, PresetChangeListener, PowderChangeListe
         spinnerView.isHidden = false
         spinnerView.startAnimating()
         startScanning()
-        progressView.progress = 1.0/80.0
+        progressView.progress = 1.0/55.0
         progressView.isHidden = false
         isLoadingData = true
         g_preset_manager.addListener(self)
@@ -204,7 +205,7 @@ extension  ViewController: CBCentralManagerDelegate {
         title = "PowderThrow: Connecting ..."
         centralManager.connect(peripheral, options: nil)
         
-        progressView.progress = 2.0/80.0
+        progressView.progress = 2.0/55.0
     }
 
     // MARK: - Connect
@@ -337,7 +338,7 @@ extension  ViewController: CBPeripheralDelegate {
         title = "PowderThrow: Loading Data ...."
         BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.PRESET_NAME_BY_INDEX, parameter: Int8(1))
         
-        progressView.progress = 4.0/80.0
+        progressView.progress = 4.0/55.0
     }
 
     // MARK: - Charactaristic  handlers
@@ -362,8 +363,11 @@ extension  ViewController: CBPeripheralDelegate {
                 g_rundata_manager.currentRunData.scale_in_grains = grains
                 let val = Array(dd[1...4]).withUnsafeBytes { $0.load(as: Float32.self) }
                 g_rundata_manager.currentRunData.target_weight = val
+                
             } else if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Config_Data_UUID) {
                 print("Config Data Charactaristic")
+                print("Size of data: \(dd.count)")
+                print("data as array values: \(String(describing: Array(dd)))")
                 let _data: Data = dd
                 g_config_data_manager.currentConfigData = _data.withUnsafeBytes { $0.load(as: ConfigDataManager.ConfigData.self) }
                 print("Config Version: \(g_config_data_manager.currentConfigData.config_version)")
@@ -379,31 +383,31 @@ extension  ViewController: CBPeripheralDelegate {
                 print("Preset Data Charactaristic")
                 print("Size of data: \(dd.count)")
                 print("data as array values: \(String(describing: Array(dd)))")
-                let preset_index = Array(dd[0...3]).withUnsafeBytes { $0.load(as: Int32.self) }
-                let preset_charge_weight = Array(dd[4...7]).withUnsafeBytes { $0.load(as: Float32.self) }
-                let powder_index = Array(dd[8...11]).withUnsafeBytes { $0.load(as: Int32.self) }
-                let preset_name = String(cString: Array(dd[12...28]))
-                let bullet_name = String(cString: Array(dd[29...45]))
-                let bullet_weight = Array(dd[48...51]).withUnsafeBytes { $0.load(as: Int32.self) }
-                let brass_name = String(cString: Array(dd[52...68]))
-                let preset_version = Array(dd[72...75]).withUnsafeBytes { $0.load(as: Int32.self) }
-                print("Preset Index: \(preset_index)")
+                let preset_version = Array(dd[0...3]).withUnsafeBytes { $0.load(as: Int32.self) }
+                let preset_number = Array(dd[4...7]).withUnsafeBytes { $0.load(as: Int32.self) }
+                let preset_charge_weight = Array(dd[8...11]).withUnsafeBytes { $0.load(as: Float32.self) }
+                let powder_index = Array(dd[12...15]).withUnsafeBytes { $0.load(as: Int32.self) }
+                let bullet_weight = Array(dd[16...19]).withUnsafeBytes { $0.load(as: Int32.self) }
+                let preset_name = String(cString: Array(dd[20...36]))
+                let bullet_name = String(cString: Array(dd[37...53]))
+                let brass_name = String(cString: Array(dd[54...70]))
+                print("Preset Version: \(preset_version)")
+                print("Preset Number: \(preset_number)")
                 print("Preset Chg weight: \(preset_charge_weight)")
                 print("Powder Index: \(powder_index)")
+                print("Bullet Weight: \(bullet_weight)")
                 print("Preset Name: '\(preset_name)'")
                 print("Bullet Name: '\(bullet_name)'")
-                print("Bullet Weight: \(bullet_weight)")
                 print("Brass Name: '\(brass_name)'")
-                print("Preset Version: \(preset_version)")
                 let preset = PresetManager.PresetData(
-                    preset_number: preset_index + 1,
+                    preset_version: preset_version,
+                    preset_number: preset_number,
                     charge_weight: preset_charge_weight,
                     powder_index: powder_index,
+                    bullet_weight: bullet_weight,
                     preset_name: preset_name,
                     bullet_name: bullet_name,
-                    bullet_weight: bullet_weight,
-                    brass_name: brass_name,
-                    preset_version: preset_version
+                    brass_name: brass_name
                 )
                 g_preset_manager.currentPreset = preset
                 
@@ -421,7 +425,7 @@ extension  ViewController: CBPeripheralDelegate {
                 if g_preset_manager.isLoading {
                     print("Add '\(preset_name)' to preset list, index: \(preset_index)")
                     g_preset_manager.addListItem(preset_name)
-                    let progress: Float = (Float(preset_index) + 5.0)/80.0
+                    let progress: Float = (Float(preset_index) + 5.0)/55.0
                     progressView.progress = progress
                     let next_index = preset_index + 1
                     if g_preset_manager.loaded {
@@ -440,24 +444,24 @@ extension  ViewController: CBPeripheralDelegate {
 
             } else if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Powder_Data_UUID) {
                 print("Processing Powder Data charactaristic")
-                //print("Size of data: \(dd.count)")
-                //print("data as array values: \(String(describing: Array(dd)))")
-                let powder_index = Array(dd[0...3]).withUnsafeBytes { $0.load(as: Int32.self) }
-                let powder_name = String(cString: Array(dd[4...23]))
-                let powder_factor = Array(dd[24...27]).withUnsafeBytes { $0.load(as: Float32.self) }
-                let powder_version = Array(dd[28...31]).withUnsafeBytes { $0.load(as: Int32.self) }
-                print("Powder Index: \(powder_index)")
-                print("Powder Number: \(powder_index+1)")
-                print("Powder Name: '\(powder_name)'")
-                print("Powder Factor: '\(powder_factor)'")
-                print("Lot Number: TODO")
+                print("Size of data: \(dd.count)")
+                print("data as array values: \(String(describing: Array(dd)))")
+                let powder_version = Array(dd[0...3]).withUnsafeBytes { $0.load(as: Int32.self) }
+                let powder_number = Array(dd[4...7]).withUnsafeBytes { $0.load(as: Int32.self) }
+                let powder_factor = Array(dd[8...11]).withUnsafeBytes { $0.load(as: Float32.self) }
+                let powder_name = String(cString: Array(dd[12...28]))
+                let powder_lot = String(cString: Array(dd[29...45]))
                 print("Powder Version: \(powder_version)")
-                print("---> TODO: parse lot number (text)")
+                print("Powder Number: \(powder_number)")
+                print("Powder Factor: '\(powder_factor)'")
+                print("Powder Name: '\(powder_name)'")
+                print("Powder Lot: \(powder_lot)")
                 let powder = PowderManager.PowderData(
-                    powder_number: Int(powder_index+1),
-                    powder_name: powder_name,
+                    powder_version: powder_version,
+                    powder_number: powder_number,
                     powder_factor: powder_factor,
-                    powder_version: Int16(powder_version)
+                    powder_name: powder_name,
+                    powder_lot: powder_lot
                 )
                 g_powder_manager.currentPowder = powder
 
@@ -477,7 +481,7 @@ extension  ViewController: CBPeripheralDelegate {
                 if g_powder_manager.isLoading {
                     print("Add '\(powder_name)' to powder list at index \(powder_index)")
                     g_powder_manager.addListItem(powder_name)
-                    let progress: Float = Float(55 + powder_index)/80.0
+                    let progress: Float = Float(30 + powder_index)/55.0
                     progressView.progress = progress
                     let next_index = powder_index + 1
                     if g_powder_manager.loaded {

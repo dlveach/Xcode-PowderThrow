@@ -175,115 +175,192 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Bump Threshold:" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Mmn-8T-vfl" userLabel="Bump Thresh Label">
-                                <rect key="frame" x="16" y="203" width="139" height="34"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Config Version: " textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mUw-rk-4EZ" userLabel="Config Version">
+                                <rect key="frame" x="16" y="111" width="343" height="34"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="34" id="1eV-yj-Z53"/>
+                                    <constraint firstAttribute="width" constant="343" id="ZuA-rk-Jrq"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5OL-pW-tET" userLabel="Edit/Save Button">
+                                <rect key="frame" x="206" y="565" width="120" height="36"/>
+                                <color key="backgroundColor" systemColor="systemBlueColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="120" id="YIy-Od-gEh"/>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="36" id="dLj-VU-6Dn"/>
+                                    <constraint firstAttribute="height" constant="36" id="pVh-z9-k7U"/>
+                                    <constraint firstAttribute="width" constant="120" id="yQl-qa-f5e"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <state key="normal" title="Edit/Save">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <color key="titleShadowColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                </state>
+                                <connections>
+                                    <action selector="editSaveButtonAction:" destination="nhN-MA-Ojj" eventType="touchUpInside" id="cjP-fn-jnm"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ja8-pE-MyJ" userLabel="Cancel Button">
+                                <rect key="frame" x="49" y="565" width="120" height="36"/>
+                                <color key="backgroundColor" systemColor="systemBlueColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="120" id="KNp-hC-OtC"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <state key="normal" title="Cancel">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <color key="titleShadowColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                </state>
+                                <connections>
+                                    <action selector="cancelButtonAction:" destination="nhN-MA-Ojj" eventType="touchUpInside" id="keu-QB-Z5J"/>
+                                </connections>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Bump Threshold(gn):" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Mmn-8T-vfl" userLabel="Bump Thresh Label">
+                                <rect key="frame" x="34" y="222" width="162" height="34"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Tolerance:" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rlg-K3-Okf" userLabel="Tolerance Label">
-                                <rect key="frame" x="16" y="245" width="139" height="34"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Tolerance(gn):" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rlg-K3-Okf" userLabel="Tolerance Label">
+                                <rect key="frame" x="57" y="264" width="139" height="34"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="FScaleP:" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uGC-24-Tgi" userLabel="FScaleP Label">
-                                <rect key="frame" x="16" y="287" width="139" height="34"/>
+                                <rect key="frame" x="57" y="306" width="139" height="34"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Decel Limit:" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="M6W-zd-Igk" userLabel="Decel Limit Label">
-                                <rect key="frame" x="16" y="329" width="139" height="34"/>
+                                <rect key="frame" x="57" y="348" width="139" height="34"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="bHu-Up-R5L" userLabel="Tolerance">
-                                <rect key="frame" x="183" y="245" width="132" height="34"/>
+                                <rect key="frame" x="208" y="264" width="132" height="34"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                 <textInputTraits key="textInputTraits" keyboardType="numbersAndPunctuation"/>
+                                <connections>
+                                    <action selector="toleranceChanged:" destination="nhN-MA-Ojj" eventType="editingChanged" id="cez-lq-YAl"/>
+                                    <action selector="toleranceEndEdit:" destination="nhN-MA-Ojj" eventType="editingDidEnd" id="LXz-wB-hQU"/>
+                                </connections>
                             </textField>
                             <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="tgZ-Bg-nfa" userLabel="Decel Limit">
-                                <rect key="frame" x="183" y="287" width="132" height="34"/>
+                                <rect key="frame" x="208" y="306" width="132" height="34"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                 <textInputTraits key="textInputTraits" keyboardType="numbersAndPunctuation"/>
+                                <connections>
+                                    <action selector="FScalePChanged:" destination="nhN-MA-Ojj" eventType="editingChanged" id="8tb-ZR-opj"/>
+                                    <action selector="FScalePEndEdit:" destination="nhN-MA-Ojj" eventType="editingDidEnd" id="aKW-hm-GVr"/>
+                                </connections>
                             </textField>
                             <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="kgg-rg-364" userLabel="FScaleP">
-                                <rect key="frame" x="183" y="329" width="132" height="34"/>
+                                <rect key="frame" x="208" y="348" width="132" height="34"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                 <textInputTraits key="textInputTraits" keyboardType="numbersAndPunctuation"/>
+                                <connections>
+                                    <action selector="decelLimitChanged:" destination="nhN-MA-Ojj" eventType="editingChanged" id="bN8-GJ-kic"/>
+                                    <action selector="decelLimitEndEdit:" destination="nhN-MA-Ojj" eventType="editingDidEnd" id="Fdf-Kc-3gg"/>
+                                </connections>
                             </textField>
                             <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="PZV-nt-N8j" userLabel="Bump Thresh">
-                                <rect key="frame" x="183" y="203" width="132" height="34"/>
+                                <rect key="frame" x="208" y="220" width="132" height="34"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                 <textInputTraits key="textInputTraits" keyboardType="numbersAndPunctuation"/>
+                                <connections>
+                                    <action selector="bumpThresholdChanged:" destination="nhN-MA-Ojj" eventType="editingChanged" id="k2J-ox-Und"/>
+                                    <action selector="bumpThresholdEndEdit:" destination="nhN-MA-Ojj" eventType="editingDidEnd" id="ypi-Y9-pG2"/>
+                                </connections>
                             </textField>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Config Version: " textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mUw-rk-4EZ" userLabel="Config Version">
-                                <rect key="frame" x="9" y="148" width="343" height="34"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Decel Threshold(gn):" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cDA-gb-7La" userLabel="Decel Thresh Label">
+                                <rect key="frame" x="34" y="180" width="162" height="34"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="gn" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YnT-2i-cpW">
-                                <rect key="frame" x="323" y="216" width="20" height="21"/>
+                            <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="tnd-kM-mAH" userLabel="Decel Thresh">
+                                <rect key="frame" x="208" y="178" width="132" height="34"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="gn" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7iS-yx-ByM">
-                                <rect key="frame" x="323" y="258" width="20" height="21"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <nil key="highlightedColor"/>
-                            </label>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <textInputTraits key="textInputTraits" keyboardType="numbersAndPunctuation"/>
+                                <connections>
+                                    <action selector="decelThresholdChanged:" destination="nhN-MA-Ojj" eventType="editingChanged" id="G8P-Jl-gd7"/>
+                                    <action selector="decelThresholdEndEdit:" destination="nhN-MA-Ojj" eventType="editingDidEnd" id="jw2-bn-qGS"/>
+                                </connections>
+                            </textField>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Trickler Speed:" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="D9p-oH-Pcq" userLabel="Trickler Speed Label">
-                                <rect key="frame" x="16" y="371" width="139" height="34"/>
+                                <rect key="frame" x="57" y="390" width="139" height="34"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="4hd-hF-gAD" userLabel="Trickler Speed">
-                                <rect key="frame" x="183" y="371" width="132" height="34"/>
+                                <rect key="frame" x="208" y="389" width="132" height="34"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                 <textInputTraits key="textInputTraits" keyboardType="numbersAndPunctuation"/>
+                                <connections>
+                                    <action selector="tricklerSpeedChanged:" destination="nhN-MA-Ojj" eventType="editingChanged" id="AJe-5E-QEu"/>
+                                    <action selector="tricklerSpeedEndEdit:" destination="nhN-MA-Ojj" eventType="editingDidEnd" id="RA5-OV-zcV"/>
+                                </connections>
                             </textField>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="RJu-pb-oTd"/>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="RJu-pb-oTd" firstAttribute="bottom" secondItem="ja8-pE-MyJ" secondAttribute="bottom" constant="66" id="3Mw-xu-fLR"/>
+                            <constraint firstItem="mUw-rk-4EZ" firstAttribute="top" secondItem="RJu-pb-oTd" secondAttribute="top" constant="15" id="9Jz-Ku-EK1"/>
+                            <constraint firstItem="mUw-rk-4EZ" firstAttribute="centerX" secondItem="RJu-pb-oTd" secondAttribute="centerX" id="IUj-ky-vVC"/>
+                            <constraint firstItem="ja8-pE-MyJ" firstAttribute="leading" secondItem="RJu-pb-oTd" secondAttribute="leading" constant="49" id="Xcg-mG-hWN"/>
+                            <constraint firstItem="RJu-pb-oTd" firstAttribute="bottom" secondItem="5OL-pW-tET" secondAttribute="bottom" constant="66" id="lzG-AU-n6B"/>
+                            <constraint firstItem="RJu-pb-oTd" firstAttribute="trailing" secondItem="5OL-pW-tET" secondAttribute="trailing" constant="49" id="ow0-3v-D1w"/>
+                        </constraints>
                     </view>
                     <navigationItem key="navigationItem" title=" Settings" largeTitleDisplayMode="always" id="oeS-aZ-iX4"/>
                     <connections>
-                        <outlet property="bumpThreshTextField" destination="PZV-nt-N8j" id="y8R-ax-lo7"/>
+                        <outlet property="FScaleP" destination="tgZ-Bg-nfa" id="nip-Yd-CND"/>
+                        <outlet property="FScalePLabel" destination="uGC-24-Tgi" id="wUA-cW-Xdl"/>
+                        <outlet property="bumpThreshold" destination="PZV-nt-N8j" id="qHq-o3-uv4"/>
+                        <outlet property="bumpThresholdLabel" destination="Mmn-8T-vfl" id="TGj-lT-bE4"/>
+                        <outlet property="cancelButton" destination="ja8-pE-MyJ" id="bSw-f0-ztG"/>
                         <outlet property="configVersionLabel" destination="mUw-rk-4EZ" id="eJ7-7t-pgf"/>
-                        <outlet property="decelLimitTextField" destination="kgg-rg-364" id="QO4-6n-184"/>
-                        <outlet property="fscalepTextField" destination="tgZ-Bg-nfa" id="4f9-OW-ivo"/>
-                        <outlet property="toleranceTextField" destination="bHu-Up-R5L" id="M0K-uJ-FiU"/>
+                        <outlet property="decelLimit" destination="kgg-rg-364" id="7W3-si-C2D"/>
+                        <outlet property="decelLimitLabel" destination="M6W-zd-Igk" id="PFm-69-QR2"/>
+                        <outlet property="decelThreshold" destination="tnd-kM-mAH" id="8ou-x2-F9B"/>
+                        <outlet property="decelThresholdLabel" destination="cDA-gb-7La" id="6nH-H2-Ovv"/>
+                        <outlet property="editSaveButton" destination="5OL-pW-tET" id="b03-4Q-6MG"/>
+                        <outlet property="tolerance" destination="bHu-Up-R5L" id="94B-yc-4Wz"/>
+                        <outlet property="toleranceLabel" destination="rlg-K3-Okf" id="hsy-06-Fg4"/>
+                        <outlet property="tricklerSpeed" destination="4hd-hF-gAD" id="dT0-0N-rz2"/>
+                        <outlet property="tricklerSpeedLabel" destination="D9p-oH-Pcq" id="ARc-gh-ECE"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="URb-7x-Lxs" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -567,7 +644,7 @@
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Charge Wt:" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Bc2-tx-AFC" userLabel="Charge Wt Label">
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Charge Wt(gn):" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Bc2-tx-AFC" userLabel="Charge Wt Label">
                                 <rect key="frame" x="16" y="180" width="133" height="34"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -588,7 +665,7 @@
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Bullet Wt:" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lJ7-Ia-MKR" userLabel="Bullet Wt Label">
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Bullet Wt(gn):" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lJ7-Ia-MKR" userLabel="Bullet Wt Label">
                                 <rect key="frame" x="16" y="306" width="133" height="34"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -597,20 +674,6 @@
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Brass:" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="31r-rd-mC5" userLabel="Brass Name Label">
                                 <rect key="frame" x="16" y="348" width="133" height="34"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="gn" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lSS-af-Zts" userLabel="gn Label">
-                                <rect key="frame" x="262" y="180" width="31" height="34"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="gn" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="r3F-9M-etX" userLabel="gn Label">
-                                <rect key="frame" x="232" y="306" width="31" height="34"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -732,7 +795,7 @@
                                     <action selector="powderNameChanged:" destination="srJ-Ir-bMB" eventType="editingChanged" id="aMB-Y0-cof"/>
                                 </connections>
                             </textField>
-                            <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="preset name" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="3ht-BY-NhJ" userLabel="Powder Factor Field">
+                            <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="powder factor" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="3ht-BY-NhJ" userLabel="Powder Factor Field">
                                 <rect key="frame" x="157" y="201" width="202" height="34"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
@@ -741,13 +804,13 @@
                                     <action selector="powderFactorChanged:" destination="srJ-Ir-bMB" eventType="editingChanged" id="EmV-GI-XiD"/>
                                 </connections>
                             </textField>
-                            <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="preset name" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="zVz-oC-Kkt" userLabel="Lot Number Field">
+                            <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="powder lot" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="zVz-oC-Kkt" userLabel="Lot Number Field">
                                 <rect key="frame" x="157" y="243" width="202" height="34"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                 <textInputTraits key="textInputTraits" returnKeyType="done" enablesReturnKeyAutomatically="YES"/>
                                 <connections>
-                                    <action selector="lotNumberChanged:" destination="srJ-Ir-bMB" eventType="editingChanged" id="udb-pe-OCc"/>
+                                    <action selector="powderLotChanged:" destination="srJ-Ir-bMB" eventType="editingChanged" id="eLO-IN-i3y"/>
                                 </connections>
                             </textField>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Powder:" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VVs-ws-Lat" userLabel="Powder Name Label">
@@ -765,7 +828,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Powder Factor:" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="thn-3D-8uu" userLabel="Powder Factor Label">
-                                <rect key="frame" x="16" y="208" width="133" height="34"/>
+                                <rect key="frame" x="16" y="201" width="133" height="34"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -781,10 +844,10 @@
                     <connections>
                         <outlet property="cancelButton" destination="KKg-Zf-9mg" id="OFW-4A-FQx"/>
                         <outlet property="editSaveButton" destination="bHz-7F-tTt" id="yz7-7V-8HA"/>
-                        <outlet property="lotNumberField" destination="zVz-oC-Kkt" id="awn-Jk-ddQ"/>
-                        <outlet property="lotNumberLabel" destination="xu1-PQ-XlW" id="vsP-eE-idi"/>
                         <outlet property="powderFactorField" destination="3ht-BY-NhJ" id="TR8-3z-Ifu"/>
                         <outlet property="powderFactorLabel" destination="thn-3D-8uu" id="4CA-fm-6CC"/>
+                        <outlet property="powderLotField" destination="zVz-oC-Kkt" id="lcQ-aE-Ptn"/>
+                        <outlet property="powderLotLabel" destination="xu1-PQ-XlW" id="eT3-Fo-UoJ"/>
                         <outlet property="powderNameField" destination="rYm-dk-eci" id="LvK-Ds-bNk"/>
                         <outlet property="powderNameLabel" destination="VVs-ws-Lat" id="WG2-2w-Hg5"/>
                         <outlet property="powderPickerView" destination="qCd-lB-RPt" id="3IU-7w-Dcs"/>

@@ -27,7 +27,7 @@ class RunThrowerViewController: UIViewController, RunDataChangeListener {
             let isPopping = !nav.viewControllers.contains(self)
             if isPopping {
                 // popping off nav
-                BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SET_SYSTEM_STATE, parameter: Int8(RunDataManager.system_state.Menu.rawValue))
+                BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SYSTEM_SET_STATE, parameter: Int8(RunDataManager.system_state.Menu.rawValue))
                 g_rundata_manager.removeListener(self)
             }
         } else {
@@ -47,7 +47,6 @@ class RunThrowerViewController: UIViewController, RunDataChangeListener {
         estopButton.layer.cornerRadius = 8
         estopButton.isHidden = true
         estopButton.isEnabled = false
-        //decelThreshSlider.isContinuous = false
         
 
         presetNameLabel.text = g_preset_manager.currentPreset.preset_name
@@ -62,7 +61,7 @@ class RunThrowerViewController: UIViewController, RunDataChangeListener {
 
         g_rundata_manager.addListener(self)
 
-        BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SET_SYSTEM_STATE, parameter: Int8(RunDataManager.system_state.Ready.rawValue))
+        BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SYSTEM_SET_STATE, parameter: Int8(RunDataManager.system_state.Ready.rawValue))
     }
     
     // Update the slider label if value changed (by tenths)
@@ -91,6 +90,8 @@ class RunThrowerViewController: UIViewController, RunDataChangeListener {
     
     @IBAction func estopButtonAction(_ sender: Any) {
         print("---> TODO: Emergency Stop")
+        
+        BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SYSTEM_ESTOP, parameter: Int8(RunDataManager.system_state.Ready.rawValue))
 
     }
     

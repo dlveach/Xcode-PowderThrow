@@ -16,7 +16,12 @@ struct BLE_COMMANDS {
     static let SET_CURRENT_POWDER = Int8(0x30)
     static let POWDER_DATA_BY_INDEX = Int8(0x31)
     static let POWDER_NAME_BY_INDEX = Int8(0x32)
-    static let SET_SYSTEM_STATE = Int8(0x50)
+    static let CALIBRATE_TRICKLER = Int8(0x41)
+    static let CALIBRATE_SCALE = Int8(0x42)
+    static let SYSTEM_SET_STATE = Int8(0x50)
+    static let SYSTEM_ESTOP = Int8(0x51)
+    static let MANUAL_THROW = Int8(0x61)
+    static let MANUAL_TRICKLE = Int8(0x62)
 }
 
 class BlePeripheral {
@@ -44,6 +49,18 @@ class BlePeripheral {
         print("BlePeripheral::writePresetData()")
         print("outgoingData.count: \(outgoingData.count)")
         BlePeripheral.connectedPeripheral?.writeValue(outgoingData, for: BlePeripheral.connectedPresetDataChar!, type: CBCharacteristicWriteType.withResponse)
+    }
+
+    func writePowderData(outgoingData: Data) {
+        print("BlePeripheral::writePowderData()")
+        print("outgoingData.count: \(outgoingData.count)")
+        BlePeripheral.connectedPeripheral?.writeValue(outgoingData, for: BlePeripheral.connectedPowderDataChar!, type: CBCharacteristicWriteType.withResponse)
+    }
+    
+    func writeConfigData(outgoingData: Data) {
+        print("BlePeripheral::writeConfigData()")
+        print("outgoingData.count: \(outgoingData.count)")
+        BlePeripheral.connectedPeripheral?.writeValue(outgoingData, for: BlePeripheral.connectedConfigDataChar!, type: CBCharacteristicWriteType.withResponse)
     }
 }
 

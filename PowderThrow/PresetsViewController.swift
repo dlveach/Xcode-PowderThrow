@@ -33,6 +33,8 @@ class  PresetsViewController: UIViewController, UITextFieldDelegate, PresetChang
     @IBOutlet weak var bulletWtLabel: UILabel!
     @IBOutlet weak var brassNameLabel: UILabel!
     
+    // MARK: - Custom View Navigation
+    
     // Custom back button action
     @objc func back(sender: UIBarButtonItem) {
         if _isEditing {
@@ -51,7 +53,7 @@ class  PresetsViewController: UIViewController, UITextFieldDelegate, PresetChang
             let isPopping = !nav.viewControllers.contains(self)
             if isPopping {
                 // popping off nav
-                BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SET_SYSTEM_STATE, parameter: Int8(RunDataManager.system_state.Menu.rawValue))
+                BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SYSTEM_SET_STATE, parameter: Int8(RunDataManager.system_state.Menu.rawValue))
                 g_preset_manager.removeListener(self)
             } 
         } else {
@@ -59,7 +61,7 @@ class  PresetsViewController: UIViewController, UITextFieldDelegate, PresetChang
         }
     }
     
-    // MARK: - ViewDidLoad
+    // MARK: - View Load / Setup
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -70,75 +72,49 @@ class  PresetsViewController: UIViewController, UITextFieldDelegate, PresetChang
         let newBackButton = UIBarButtonItem(title: "< Main", style: UIBarButtonItem.Style.plain, target: self, action: #selector(PresetsViewController.back(sender:)))
         self.navigationItem.leftBarButtonItem = newBackButton
 
+        // Enable dismissing the keyboard popup by tapping outside
+        let tapGesture = UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing))
+        view.addGestureRecognizer(tapGesture)
+
+        // Add self to managers as listener
+        g_preset_manager.addListener(self)
+        g_powder_manager.addListener(self)
+        
+        // Set delgates
         presetNameTextField.delegate = self
         chargeWtTextField.delegate = self
         bulletNameTextField.delegate = self
         bulletWtTextField.delegate = self
         brassNameTextField.delegate = self
-                
-        g_preset_manager.addListener(self)
-        g_powder_manager.addListener(self)
-        
-        // Enable dismissing the keyboard popup by tapping outside
-        let tapGesture = UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing))
-        view.addGestureRecognizer(tapGesture)
-        
+        presetsPickerView.dataSource = self
+        presetsPickerView.delegate = self
+
+        //set up default view conditions
         editSaveButton.layer.cornerRadius = 8
         cancelButton.layer.cornerRadius = 8
         powdersButton.layer.cornerRadius = 8
-
-        //set up default view conditions
-        cancelButton.isHidden = true
-        editSaveButton.setTitle("Edit", for: UIControl.State.normal)
-        powdersButton.isHidden = true
-        PowderNameTextField.isEnabled = false
-        PowderNameTextField.text = "--"
-
-        presetNameTextField.isEnabled = false
-        chargeWtTextField.isEnabled = false
-        bulletNameTextField.isEnabled = false
-        bulletWtTextField.isEnabled = false
-        brassNameTextField.isEnabled = false
-        presetNameLabel.layer.borderWidth = 0
-        chargeWtLabel.layer.borderWidth = 0
-        powderNameLabel.layer.borderWidth = 0
-        bulletNameLabel.layer.borderWidth = 0
-        bulletWtLabel.layer.borderWidth = 0
-        brassNameLabel.layer.borderWidth = 0
-        powdersButton.isHidden = true
-
-        //set up preset picker
         presetsPickerView.layer.backgroundColor = UIColor.systemBlue.cgColor
         presetsPickerView.layer.cornerRadius = 10
-        presetsPickerView.dataSource = self
-        presetsPickerView.delegate = self
+        clearEditing(reset: true)
         
-        //Set picker & textfields to current preset.
+        //Set picker to current preset.
         presetsPickerView.selectRow(Int(g_preset_manager.currentPreset.preset_number-1), inComponent: 0, animated: false)
-        presetNameTextField.text = g_preset_manager.currentPreset.preset_name.trimmingCharacters(in: .whitespacesAndNewlines)
-        if g_preset_manager.currentPreset.powder_index >= 0 {
-            PowderNameTextField.text = g_powder_manager.getListItemAt(Int(g_preset_manager.currentPreset.powder_index))
-        } else {
-            PowderNameTextField.text = "--"
-        }
-        chargeWtTextField.text = String(g_preset_manager.currentPreset.charge_weight)
-        bulletNameTextField.text = g_preset_manager.currentPreset.bullet_name.trimmingCharacters(in: .whitespacesAndNewlines)
-        bulletWtTextField.text = String(g_preset_manager.currentPreset.bullet_weight)
-        brassNameTextField.text = g_preset_manager.currentPreset.brass_name.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SET_SYSTEM_STATE, parameter: Int8(RunDataManager.system_state.Presets.rawValue))
+        // Set state on peripheral
+        BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SYSTEM_SET_STATE, parameter: Int8(RunDataManager.system_state.Presets.rawValue))
 
     }
         
-    // MARK: - Change Listener Callbacks
+    // MARK: - Data Listener Callbacks
     
     func presetChanged(to new_preset: PresetManager.PresetData) {
-        //update UI fields
         presetNameTextField.text = new_preset.preset_name.trimmingCharacters(in: .whitespacesAndNewlines)
         let val = (new_preset.charge_weight * 100).rounded() / 100  //two decimal places
         chargeWtTextField.text = String(val)
         if new_preset.powder_index >= 0 {
             PowderNameTextField.text = g_powder_manager.getListItemAt(Int(g_preset_manager.currentPreset.powder_index))
+            // Update powder manager with corresponding powder for the preset & trigger change listeners
+            BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.POWDER_DATA_BY_INDEX, parameter: Int8(new_preset.powder_index + 1)) //index is command parameter - 1 TODO: fix this!!!
         } else {
             PowderNameTextField.text = "--"
         }
@@ -243,15 +219,17 @@ class  PresetsViewController: UIViewController, UITextFieldDelegate, PresetChang
     func savePresetData() {
         print("savePresetData()")
         if anyError() { return }
-        // make a copy of the data to avoid triggering "invoke" on every change
+        // make a temp copy of the data to avoid triggering "invoke" on every change
         var new_preset = PresetManager.PresetData()
-        new_preset.preset_number = g_preset_manager.currentPreset.preset_number - 1
+        new_preset.preset_version = g_preset_manager.currentPreset.preset_version
+        new_preset.preset_number = g_preset_manager.currentPreset.preset_number
         new_preset.powder_index = Int32(g_powder_manager.currentPowder.powder_number - 1)
         if let str = presetNameTextField.text {
             let fmtstr = str.withCString { String(format: "%-16s", $0) }
             new_preset.preset_name = fmtstr
-            //TODO: should this happen by the peripheral sending a list item update on saving the data?
+            //update picker view with new preset name
             g_preset_manager.updateListItem(str, index: Int(g_preset_manager.currentPreset.preset_number)-1)
+            presetsPickerView.reloadAllComponents()
         } else {
             print("Failed to get presetNameTextField.text")
             return
@@ -459,14 +437,13 @@ extension PresetsViewController: UIPickerViewDelegate {
     }
 
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        print("---> Preset Picker, selected row: \(row), Preset number: \(row+1), Preset name:  \(g_preset_manager.getListItemAt(row)), Manager's current preset number: \(g_preset_manager.currentPreset.preset_number), Manager's preset name: \(g_preset_manager.currentPreset.preset_name)")
-
-        //TODO: ??? only do this if it's a defined preset.  Don't request empty presets over BLE (save action should trigger a preset reload)
-        //For now: seems to work ok, getting empty preset from BLE peripheral is ok.  Maybe just a bit wasteful
+        print("---> Preset Picker, picker row: \(row), Manager picker list data name:  \(g_preset_manager.getListItemAt(row)), Preset number: \(row+1), Manager's current preset number: \(g_preset_manager.currentPreset.preset_number), Manager's preset name: \(g_preset_manager.currentPreset.preset_name)")
         
         if row + 1 != g_preset_manager.currentPreset.preset_number {
             BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.PRESET_DATA_BY_INDEX, parameter: Int8(row+1))
         }
+        
+        print("TODO: figure out how to set current powder on peripheral and trigger updates in views for powder change when preset is changed")
     }
 }
 
