@@ -5,7 +5,7 @@
 //  Created by David Veach on 6/16/22.
 //
 //  TODO:
-//      - align buffer size (stride) with Arduino bit sizes (I.E. Float32, Int32, etc.)
+//      - align all buffer sizes (stride) with Arduino bit sizes (I.E. Float32, Int32, etc.)
 
 import Foundation
 
@@ -14,23 +14,9 @@ let MAX_PRESETS = 25
 let MAX_POWDERS = 25
 let GM_TO_GN_FACTOR: Float = Float(0.06479891)
 
-/*
-// MARK: - Config Data
-public struct _config_data {
-    var preset = Int16(0)
-    var fscaleP = Float32(0.0)
-    var decel_threshold = Float32(0.0)
-    var bump_threshold = Float32(0.0)
-    var decel_limit = Int16(0)
-    var gn_tolerance = Float32(0.0)
-    var mg_tolerance = Float32(0.0)
-    var config_version = Int16(0)
-}
-
-public var g_configData = _config_data()
-*/
 
 // MARK: - Preset Manager
+
 protocol PresetChangeListener: AnyObject {
     func presetChanged(to new_preset: PresetManager.PresetData)
 }
@@ -328,7 +314,7 @@ class RunDataManager {
         case Locked
         case Menu
         case Settings
-        case Manual
+        case Disabled
         case Manual_Throw
         case Manual_Trickle
         case Calibrate_Trickler
@@ -493,5 +479,62 @@ class ConfigDataManager {
         BlePeripheral().writeConfigData(outgoingData: _data)
     }
 
+}
+
+// MARK: - Trickler Cal Data Manager
+
+protocol TricklerCalDataChangeListener: AnyObject {
+    func tricklerCalDataChanged(to new_data: TricklerCalDataManager.TricklerCalData)
+}
+
+let g_trickler_cal_data_manager = TricklerCalDataManager()
+
+class TricklerCalDataManager {
+    
+    //Data from storage
+    struct TricklerCalData {
+        var count: Int32 = Int32(0)
+        var average: Float32 = Float32(0.0)
+        var speed: Int32 = Int32(0)
+    }
+
+    // Data for the current preset
+    private var _current: TricklerCalData
+    private var listeners: [TricklerCalDataChangeListener]
+
+    init() {
+        _current = TricklerCalData()
+        listeners = []
+    }
+
+    // Invoke the "changed" method on all listeners
+    func invoke() {
+        for listener in listeners {
+            listener.tricklerCalDataChanged(to: _current)
+        }
+    }
+    
+    // Add a listener to the list of listeners
+    func addListener(_ listener: TricklerCalDataChangeListener) {
+        listeners.append(listener)
+    }
+    
+    // Remove a specific listener from the list of listeners
+    func removeListener(_ listener: TricklerCalDataChangeListener) {
+        if let index = listeners.firstIndex(where: { $0 === listener }) {
+            listeners.remove(at: index)
+        }
+    }
+
+    // Access to current powder data
+    var currentData: TricklerCalData {
+        get {
+            return _current
+        }
+        set {
+            _current = newValue
+            invoke()
+        }
+    }
 }
 

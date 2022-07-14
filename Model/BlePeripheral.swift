@@ -16,10 +16,12 @@ struct BLE_COMMANDS {
     static let SET_CURRENT_POWDER = Int8(0x30)
     static let POWDER_DATA_BY_INDEX = Int8(0x31)
     static let POWDER_NAME_BY_INDEX = Int8(0x32)
-    static let CALIBRATE_TRICKLER = Int8(0x41)
-    static let CALIBRATE_SCALE = Int8(0x42)
+    static let CALIBRATE_TRICKLER_START = Int8(0x41)
+    static let CALIBRATE_TRICKLER_CANCEL = Int8(0x42)
+    static let CALIBRATE_SCALE = Int8(0x43)
     static let SYSTEM_SET_STATE = Int8(0x50)
     static let SYSTEM_ESTOP = Int8(0x51)
+    static let SYSTEM_ENABLE = Int8(0x52)
     static let MANUAL_THROW = Int8(0x61)
     static let MANUAL_TRICKLE = Int8(0x62)
 }
@@ -38,11 +40,22 @@ class BlePeripheral {
     static var connectedPresetListItemChar: CBCharacteristic?
     static var connectedPowderDataChar: CBCharacteristic?
     static var connectedPowderListItemChar: CBCharacteristic?
-    
+    static var connectedTricklerCalDataChar: CBCharacteristic?
+
     func writeParameterCommand(cmd: Int8, parameter: Int8) {
         let _data: [Int8] = [cmd, parameter]
         let outgoingData = NSData(bytes: _data, length: _data.count)
         BlePeripheral.connectedPeripheral?.writeValue(outgoingData as Data, for: BlePeripheral.connectedParameterCommandChar!, type: CBCharacteristicWriteType.withResponse)
+    }
+    
+    func writeParameterCommandWithoutResponse(cmd: Int8, parameter: Int8) {
+        let _data: [Int8] = [cmd, parameter]
+        let outgoingData = NSData(bytes: _data, length: _data.count)
+        //HACK: for some reason during trickler calibration no response ever is recieved
+        //      and connection is lost (some kind of timeout?).  Using withoutResponse
+        //      seems to avoid the issue but I'd like to figure out why it *only* happens
+        //      during trickler calibration.  I'm callign BLE.poll() in the calibration loop so...
+        BlePeripheral.connectedPeripheral?.writeValue(outgoingData as Data, for: BlePeripheral.connectedParameterCommandChar!, type: CBCharacteristicWriteType.withoutResponse)
     }
     
     func writePresetData(outgoingData: Data) {

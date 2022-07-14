@@ -8,7 +8,7 @@
 import UIKit
 import CoreBluetooth
 
-class  SettingsViewController: UIViewController, UITextFieldDelegate, ConfigDataChangeListener {
+class  SettingsViewController: UIViewController, UITextFieldDelegate, ConfigDataChangeListener, TricklerCalDataChangeListener {
     
     private var _isEditing = false
 
@@ -19,6 +19,13 @@ class  SettingsViewController: UIViewController, UITextFieldDelegate, ConfigData
     @IBOutlet weak var FScalePLabel: UILabel!
     @IBOutlet weak var decelLimitLabel: UILabel!
     @IBOutlet weak var tricklerSpeedLabel: UILabel!
+    @IBOutlet weak var samplesLabel: UILabel!
+    @IBOutlet weak var averageLabel: UILabel!
+    
+    @IBOutlet weak var calibrateSlider: UISlider!
+    @IBOutlet weak var slowLabel: UILabel!
+    @IBOutlet weak var goodLabel: UILabel!
+    @IBOutlet weak var fastLabel: UILabel!
     
     @IBOutlet weak var decelThreshold: UITextField!
     @IBOutlet weak var bumpThreshold: UITextField!
@@ -27,9 +34,12 @@ class  SettingsViewController: UIViewController, UITextFieldDelegate, ConfigData
     @IBOutlet weak var decelLimit: UITextField!
     @IBOutlet weak var tricklerSpeed: UITextField!
     
+    @IBOutlet weak var calibrateTricklerButton: UIButton!
     @IBOutlet weak var cancelButton: UIButton!
     @IBOutlet weak var editSaveButton: UIButton!
     
+    var _trickler_calibration_running: Bool = false
+
     // MARK: - Custom View navigation
     
     // Custom back button action
@@ -51,7 +61,9 @@ class  SettingsViewController: UIViewController, UITextFieldDelegate, ConfigData
             if isPopping {
                 // popping off nav
                 BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SYSTEM_SET_STATE, parameter: Int8(RunDataManager.system_state.Menu.rawValue))
-                print("TODO: remove self from listeners when implemented for settings")
+                // Remove self from listeners
+                g_config_data_manager.removeListener(self)
+                g_trickler_cal_data_manager.removeListener(self)
             } 
         } else {
             // not on nav at all
@@ -76,6 +88,7 @@ class  SettingsViewController: UIViewController, UITextFieldDelegate, ConfigData
 
         // Add self as listener to manager(s)
         g_config_data_manager.addListener(self)
+        g_trickler_cal_data_manager.addListener(self)
         
         // Set text field delagets
         decelThreshold.delegate = self
@@ -86,8 +99,10 @@ class  SettingsViewController: UIViewController, UITextFieldDelegate, ConfigData
         tricklerSpeed.delegate = self
 
         // Set up default view conditions
+        calibrateSlider.setThumbImage(UIImage(named: "questionMark"), for: UIControl.State.normal)
         editSaveButton.layer.cornerRadius = 8
         cancelButton.layer.cornerRadius = 8
+        calibrateTricklerButton.layer.cornerRadius = 8
         cancelButton.isHidden = true
         editSaveButton.setTitle("Edit", for: UIControl.State.normal)
         clearEditing(reset: true)
@@ -108,6 +123,32 @@ class  SettingsViewController: UIViewController, UITextFieldDelegate, ConfigData
         tricklerSpeed.text = String(format: "%d", new_data.trickler_speed)
     }
     
+    func tricklerCalDataChanged(to new_data: TricklerCalDataManager.TricklerCalData) {
+        if new_data.count == -99 {
+            print("trickler calibration stop signal recieved.")
+            if new_data.average < 0 {
+                // Peripheral signaled calibration was not successful
+                let alert = UIAlertController(title: "Trickler Calibration", message: "Calibration failed, try adjusting trickler.", preferredStyle: UIAlertController.Style.alert)
+                alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: { (action: UIAlertAction!) in }))
+                present(alert, animated: true, completion: nil)
+                tricklerSpeed.text = String(format: "%d", g_config_data_manager.currentConfigData.trickler_speed)
+            }
+            _trickler_calibration_running = false
+            hideCalibration()
+        } else if new_data.count < 5 {
+            calibrateSlider.setThumbImage(UIImage(named: "questionMark"), for: UIControl.State.normal)
+            calibrateSlider.value = 10 // corresponds to avg 1.0
+            samplesLabel.text = "Samples: \(new_data.count)"
+            averageLabel.text = "Avg gn/sec: ----"
+        } else {
+            calibrateSlider.setThumbImage(UIImage(named: "upArrow"), for: UIControl.State.normal)
+            calibrateSlider.value = new_data.average * 10 // slider range is 7 to 13 (for avg .07 to 1.3)
+            samplesLabel.text = "Samples: \(new_data.count)"
+            averageLabel.text = "\(String(format: "Avg gn/sec: %4.2f", new_data.average))"
+            tricklerSpeed.text = String(format: "%d", new_data.speed)
+        }
+    }
+    
     // MARK: - Button Handlers
     
     @IBAction func editSaveButtonAction(_ sender: Any) {
@@ -125,10 +166,73 @@ class  SettingsViewController: UIViewController, UITextFieldDelegate, ConfigData
         if _isEditing { clearEditing(reset: true) }
     }
     
+    @IBAction func calibrateTricklerButtonAction(_ sender: Any) {
+        let START = 1
+        let STOP = 0
+        if _trickler_calibration_running {
+            print("--->  Writing stop calibration signal to parameter command")
+            BlePeripheral().writeParameterCommandWithoutResponse(cmd: BLE_COMMANDS.CALIBRATE_TRICKLER_CANCEL, parameter: Int8(STOP))
+            
+            //TODO: !!! peripheral is not reading this until **after** the calibration completes.
+            //          Need to unblock on the peripheral in the calibration loop somehow.
+            
+            //TODO: !!! Central is also loosing connection with peripheral during calibration.
+            //          This is bad.
+            
+            //HACK: using writeWithoutResponse seems to be avoiding the issue
+            
+            hideCalibration()  
+            _trickler_calibration_running = false
+        } else if !g_rundata_manager.currentRunData.scale_in_grains {
+            let alert = UIAlertController(title: "Trickler Calibration", message: "Scale must be in Grains mode to calibrate trickler.", preferredStyle: UIAlertController.Style.alert)
+            alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: { (action: UIAlertAction!) in }))
+            present(alert, animated: true, completion: nil)
+        } else if g_rundata_manager.currentRunData.scale_cond == RunDataManager.scale_cond.Pan_Off.rawValue {
+            let alert = UIAlertController(title: "Trickler Calibration", message: "Pan must be on scale to calibrate trickler.", preferredStyle: UIAlertController.Style.alert)
+            alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: { (action: UIAlertAction!) in }))
+            present(alert, animated: true, completion: nil)
+        } else {
+            _trickler_calibration_running = true
+            BlePeripheral().writeParameterCommandWithoutResponse(cmd: BLE_COMMANDS.CALIBRATE_TRICKLER_START, parameter: Int8(START))
+            showCalibration()
+        }
+    }
+    
+    func showCalibration() {
+        calibrateTricklerButton.setTitle("Stop", for: UIControl.State.normal)
+        calibrateSlider.setThumbImage(UIImage(named: "questionMark"), for: UIControl.State.normal)
+        calibrateSlider.value = 10
+        editSaveButton.isHidden = true
+        slowLabel.isHidden = false
+        goodLabel.isHidden = false
+        fastLabel.isHidden = false
+        calibrateSlider.isHidden = false
+        samplesLabel.isHidden = false
+        averageLabel.isHidden = false
+        samplesLabel.text = "Samples: --"
+        averageLabel.text = "Avg gn/sec: ----"
+        tricklerSpeed.layer.borderWidth = 5
+        tricklerSpeed.layer.borderColor = UIColor.systemBlue.cgColor
+    }
+    
+    func hideCalibration() {
+        calibrateTricklerButton.setTitle("Calibrate Trickler", for: UIControl.State.normal)
+        editSaveButton.isHidden = false
+        slowLabel.isHidden = true
+        goodLabel.isHidden = true
+        fastLabel.isHidden = true
+        calibrateSlider.isHidden = true
+        samplesLabel.isHidden = true
+        averageLabel.isHidden = true
+        tricklerSpeed.layer.borderWidth = 0
+        tricklerSpeed.layer.borderColor = UIColor.black.cgColor
+    }
+    
     func setEditing() {
         _isEditing = true
         editSaveButton.setTitle("Save", for: UIControl.State.normal)
         cancelButton.isHidden = false
+        calibrateTricklerButton.isHidden = true
         decelThreshold.backgroundColor = UIColor.white
         decelThreshold.textColor = UIColor.black
         decelThreshold.isEnabled = true
@@ -153,6 +257,7 @@ class  SettingsViewController: UIViewController, UITextFieldDelegate, ConfigData
         _isEditing = false
         editSaveButton.setTitle("Edit", for: UIControl.State.normal)
         cancelButton.isHidden = true
+        calibrateTricklerButton.isHidden = false
         decelThreshold.backgroundColor = UIColor.black
         decelThreshold.textColor = UIColor.white
         decelThreshold.isEnabled = false
@@ -241,21 +346,6 @@ class  SettingsViewController: UIViewController, UITextFieldDelegate, ConfigData
     
     // MARK: - Form Validation
 
-    // TODO: remove these inline validations if not used
-    @IBAction func decelThresholdChanged(_ sender: Any) {
-    }
-    @IBAction func bumpThresholdChanged(_ sender: Any) {
-    }
-    @IBAction func toleranceChanged(_ sender: Any) {
-    }
-    @IBAction func FScalePChanged(_ sender: Any) {
-    }
-    @IBAction func decelLimitChanged(_ sender: Any) {
-    }
-    @IBAction func tricklerSpeedChanged(_ sender: Any) {
-    }
-    
-    // Text field End Edit validation actions
     @IBAction func decelThresholdEndEdit(_ sender: Any) {
     }
     @IBAction func bumpThresholdEndEdit(_ sender: Any) {

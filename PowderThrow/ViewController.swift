@@ -27,6 +27,7 @@ class  ViewController: UIViewController, PresetChangeListener, PowderChangeListe
     private var presetListItemChar: CBCharacteristic!
     private var powderDataChar: CBCharacteristic!
     private var powderListItemChar: CBCharacteristic!
+    private var tricklerCalDataChar: CBCharacteristic!
     
     @IBOutlet weak var connectButton: UIButton!
     @IBOutlet weak var spinnerView: UIActivityIndicatorView!
@@ -34,7 +35,6 @@ class  ViewController: UIViewController, PresetChangeListener, PowderChangeListe
     @IBOutlet weak var runButton: UIButton!
     @IBOutlet weak var settingsButton: UIButton!
     @IBOutlet weak var presetsButton: UIButton!
-    
     @IBOutlet weak var presetNameLabel: UILabel!
     @IBOutlet weak var powderNameLabel: UILabel!
     @IBOutlet weak var targetWeightLabel: UILabel!
@@ -76,12 +76,14 @@ class  ViewController: UIViewController, PresetChangeListener, PowderChangeListe
         
         //TODO: parameter command to request config (and current preset/powder?).  Is this needed?
     }
+    
+    // MARK: - Change Listener Callbacks
 
     func presetChanged(to new_preset: PresetManager.PresetData) {
         print("main screen setting preset field")
         print("new preset charge weight: \(new_preset.charge_weight)")
         print("g_powder_manager current powder.powder_factor: \(g_powder_manager.currentPowder.powder_factor)")
-        //check preset data & enable run button?
+        //check preset data & enable run button
         if new_preset.charge_weight > 0 && g_powder_manager.currentPowder.powder_factor > 0 {
             presetNameLabel.text = new_preset.preset_name
             powderNameLabel.text = g_powder_manager.currentPowder.powder_name
@@ -92,6 +94,10 @@ class  ViewController: UIViewController, PresetChangeListener, PowderChangeListe
                 let val = (new_preset.charge_weight * GM_TO_GN_FACTOR * 1000).rounded() / 1000
                 targetWeightLabel.text = "\(val) g"
             }
+            //target weight in run data needs update when preset changed
+            //TODO: should peripheral be setting this????
+            g_rundata_manager.currentRunData.target_weight = new_preset.charge_weight
+            
             runButton.isEnabled = true
             runButton.layer.backgroundColor = UIColor.systemBlue.cgColor
         } else {
@@ -333,6 +339,12 @@ extension  ViewController: CBPeripheralDelegate {
                 peripheral.setNotifyValue(true, for: characteristic)
                 print("Command Button Characteristic: \(powderListItemChar.uuid)")
             }
+            if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Trickler_Cal_Data_UUID)  {
+                tricklerCalDataChar = characteristic
+                BlePeripheral.connectedTricklerCalDataChar = tricklerCalDataChar
+                peripheral.setNotifyValue(true, for: characteristic)
+                print("Command Button Characteristic: \(tricklerCalDataChar.uuid)")
+            }
         }
         print("All Characteristics registered, start loading preset data.")
         title = "PowderThrow: Loading Data ...."
@@ -363,7 +375,21 @@ extension  ViewController: CBPeripheralDelegate {
                 g_rundata_manager.currentRunData.scale_in_grains = grains
                 let val = Array(dd[1...4]).withUnsafeBytes { $0.load(as: Float32.self) }
                 g_rundata_manager.currentRunData.target_weight = val
-                
+            } else if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Trickler_Cal_Data_UUID) {
+                print("Trickler Calibration Data")
+                print("Size of data: \(dd.count)")
+                print("data as array values: \(String(describing: Array(dd)))")
+                let count = Array(dd[0...3]).withUnsafeBytes { $0.load(as: Int32.self) }
+                let avg = Array(dd[4...7]).withUnsafeBytes { $0.load(as: Float32.self) }
+                let speed = Array(dd[8...11]).withUnsafeBytes { $0.load(as: Int32.self) }
+                print("Sample Count: \(count)")
+                print("Avgerage: \(avg)")
+                print("Speed: \(speed)")
+                let data = TricklerCalDataManager.TricklerCalData(
+                    count: count,
+                    average: avg,
+                    speed: speed)
+                g_trickler_cal_data_manager.currentData = data
             } else if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Config_Data_UUID) {
                 print("Config Data Charactaristic")
                 print("Size of data: \(dd.count)")
@@ -503,7 +529,6 @@ extension  ViewController: CBPeripheralDelegate {
                         settingsButton.isEnabled = true
                         settingsButton.layer.backgroundColor = UIColor.systemBlue.cgColor
                         settingsButton.isHidden = false
-//                        BlePeripheral.connectedPeripheral?.readValue(for: BlePeripheral.connectedConfigDataChar!)
                         BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.PRESET_DATA_BY_INDEX, parameter: Int8(g_config_data_manager.currentConfigData.preset+1))
                     } else {
                         let _data: [Int8] = [BLE_COMMANDS.POWDER_NAME_BY_INDEX, Int8(next_index)]
