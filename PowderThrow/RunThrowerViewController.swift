@@ -19,7 +19,8 @@ class RunThrowerViewController: UIViewController, RunDataChangeListener {
     @IBOutlet weak var powderNameLabel: UILabel!
     @IBOutlet weak var targetWeightLabel: UILabel!
     @IBOutlet weak var enableSwitch: UISwitch!
-
+    @IBOutlet weak var ladderSetupButton: UIButton!
+    
     @IBOutlet weak var estopButton: UIButton!
     
     // MARK: - Navigation
@@ -52,7 +53,8 @@ class RunThrowerViewController: UIViewController, RunDataChangeListener {
         estopButton.layer.cornerRadius = 8
         estopButton.isHidden = true
         estopButton.isEnabled = false
-        
+        ladderSetupButton.isHidden = true
+        ladderSetupButton.layer.cornerRadius = 8
 
         presetNameLabel.text = g_preset_manager.currentPreset.preset_name
         powderNameLabel.text = g_powder_manager.currentPowder.powder_name
@@ -114,14 +116,23 @@ class RunThrowerViewController: UIViewController, RunDataChangeListener {
              RunDataManager.system_state.Trickling.rawValue:
             estopButton.isHidden = false
             enableSwitch.isEnabled = false
+            ladderSetupButton.isHidden = true
         case RunDataManager.system_state.Ready.rawValue:
             estopButton.isHidden = true
             enableSwitch.isEnabled = true
             enableSwitch.setOn(true, animated: true)
-        case RunDataManager.system_state.Disabled.rawValue:
+            ladderSetupButton.isHidden = true
+        case RunDataManager.system_state.Manual.rawValue,
+             RunDataManager.system_state.Ladder.rawValue:
             estopButton.isHidden = true
             enableSwitch.isEnabled = true
             enableSwitch.setOn(false, animated: true)
+            ladderSetupButton.isHidden = false
+        case RunDataManager.system_state.Manual_Run.rawValue,
+             RunDataManager.system_state.Ladder_Run.rawValue:
+            estopButton.isHidden = true
+            enableSwitch.isEnabled = false
+            ladderSetupButton.isHidden = true
         default:
             estopButton.isHidden = true
             enableSwitch.isEnabled = false
@@ -146,16 +157,15 @@ class RunThrowerViewController: UIViewController, RunDataChangeListener {
     }
 
     // MARK: - Button Handlers
-    
+        
     @IBAction func enableSwitchChnaged(_ sender: UISwitch) {
-        let ENABLED = Int8(0)
-        let DISABLED = Int8(1)
+        let AUTO = Int8(0), MANUAL = Int8(1)
         if sender.isOn {
-            print("TODO: Enable switch on")
-            BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SYSTEM_ENABLE, parameter: ENABLED)
+            BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SYSTEM_AUTO_ENABLE, parameter: AUTO)
+            ladderSetupButton.isHidden = true
         } else {
-            print("TODO: Enable switch off")
-            BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SYSTEM_ENABLE, parameter: DISABLED)
+            BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SYSTEM_AUTO_ENABLE, parameter: MANUAL)
+            ladderSetupButton.isHidden = false
         }
     }
     

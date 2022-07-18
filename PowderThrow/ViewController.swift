@@ -28,7 +28,8 @@ class  ViewController: UIViewController, PresetChangeListener, PowderChangeListe
     private var powderDataChar: CBCharacteristic!
     private var powderListItemChar: CBCharacteristic!
     private var tricklerCalDataChar: CBCharacteristic!
-    
+    private var ladderDataChar: CBCharacteristic!
+
     @IBOutlet weak var connectButton: UIButton!
     @IBOutlet weak var spinnerView: UIActivityIndicatorView!
     @IBOutlet weak var progressView: UIProgressView!
@@ -337,19 +338,27 @@ extension  ViewController: CBPeripheralDelegate {
                 powderListItemChar = characteristic
                 BlePeripheral.connectedPowderListItemChar = powderListItemChar
                 peripheral.setNotifyValue(true, for: characteristic)
-                print("Command Button Characteristic: \(powderListItemChar.uuid)")
+                print("Powder List Item Characteristic: \(powderListItemChar.uuid)")
             }
             if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Trickler_Cal_Data_UUID)  {
                 tricklerCalDataChar = characteristic
                 BlePeripheral.connectedTricklerCalDataChar = tricklerCalDataChar
                 peripheral.setNotifyValue(true, for: characteristic)
-                print("Command Button Characteristic: \(tricklerCalDataChar.uuid)")
+                print("Trickler Cal Data Characteristic: \(tricklerCalDataChar.uuid)")
+            }
+            if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Ladder_Data_UUID)  {
+                ladderDataChar = characteristic
+                BlePeripheral.connectedLadderDataChar = ladderDataChar
+                //peripheral.setNotifyValue(true, for: characteristic)
+                print("Ladder Data Characteristic: \(ladderDataChar.uuid)")
             }
         }
+        
+        //TODO: is there any way to validate all characteristics were found?
+        
         print("All Characteristics registered, start loading preset data.")
         title = "PowderThrow: Loading Data ...."
         BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.PRESET_NAME_BY_INDEX, parameter: Int8(1))
-        
         progressView.progress = 4.0/55.0
     }
 

@@ -23,7 +23,7 @@ struct CBUUIDs{
     static let kBLE_Characteristic_Powder_Data_UUID = "970a7c20-e01b-11ec-9d64-0242ac120002"
     static let kBLE_Characteristic_Powder_List_Item_UUID = "970a71b2-e01b-11ec-9d64-0242ac120002"
     static let kBLE_Characteristic_Trickler_Cal_Data_UUID = "71ae0138-eda2-11ec-8ea0-0242ac120002"
-    
+    static let kBLE_Characteristic_Ladder_Data_UUID = "71ae0282-eda2-11ec-8ea0-0242ac120002"
 
     //static let MaxCharacters = 30
 
@@ -40,5 +40,6 @@ struct CBUUIDs{
     static let BLE_Characteristic_Powder_Data_UUID = CBUUID(string: kBLE_Characteristic_Powder_Data_UUID)
     static let BLE_Characteristic_Powder_List_Item_UUID = CBUUID(string: kBLE_Characteristic_Powder_List_Item_UUID)
     static let BLE_Characteristic_Trickler_Cal_Data_UUID = CBUUID(string: kBLE_Characteristic_Trickler_Cal_Data_UUID)
+    static let BLE_Characteristic_Ladder_Data_UUID = CBUUID(string: kBLE_Characteristic_Ladder_Data_UUID)
 }
 

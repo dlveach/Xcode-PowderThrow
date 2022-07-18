@@ -79,7 +79,7 @@ class  SettingsViewController: UIViewController, UITextFieldDelegate, ConfigData
         
         // Custom back button
         self.navigationItem.hidesBackButton = true
-        let newBackButton = UIBarButtonItem(title: "< Main", style: UIBarButtonItem.Style.plain, target: self, action: #selector(PresetsViewController.back(sender:)))
+        let newBackButton = UIBarButtonItem(title: "< Main", style: UIBarButtonItem.Style.plain, target: self, action: #selector(SettingsViewController.back(sender:)))
         self.navigationItem.leftBarButtonItem = newBackButton
 
         // Enable dismissing the keyboard popup by tapping outside

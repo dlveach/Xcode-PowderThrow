@@ -67,7 +67,7 @@ class  PowdersViewController: UIViewController, UITextFieldDelegate, PowderChang
         
         //custom back button
         self.navigationItem.hidesBackButton = true
-        let newBackButton = UIBarButtonItem(title: "< Presets", style: UIBarButtonItem.Style.plain, target: self, action: #selector(PresetsViewController.back(sender:)))
+        let newBackButton = UIBarButtonItem(title: "< Presets", style: UIBarButtonItem.Style.plain, target: self, action: #selector(PowdersViewController.back(sender:)))
         self.navigationItem.leftBarButtonItem = newBackButton
 
         // Enable dismissing the keyboard popup by tapping outside

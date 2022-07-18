@@ -14,6 +14,16 @@ let MAX_PRESETS = 25
 let MAX_POWDERS = 25
 let GM_TO_GN_FACTOR: Float = Float(0.06479891)
 
+// MARK: state variables
+
+struct LadderData {
+    var is_configured: Bool
+    var step_count: Int32
+    var start_weight: Float32
+    var step_interval: Float32
+}
+var g_ladder_data = LadderData(is_configured: false, step_count: 0, start_weight: 0.0, step_interval: 0.0)
+
 
 // MARK: - Preset Manager
 
@@ -307,6 +317,10 @@ class RunDataManager {
         case Error
         case Setup
         case Ready
+        case Manual
+        case Manual_Run
+        case Ladder
+        case Ladder_Run
         case Throwing
         case Trickling
         case Bumping
@@ -314,7 +328,6 @@ class RunDataManager {
         case Locked
         case Menu
         case Settings
-        case Disabled
         case Manual_Throw
         case Manual_Trickle
         case Calibrate_Trickler

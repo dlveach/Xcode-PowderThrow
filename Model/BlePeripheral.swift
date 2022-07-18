@@ -21,7 +21,8 @@ struct BLE_COMMANDS {
     static let CALIBRATE_SCALE = Int8(0x43)
     static let SYSTEM_SET_STATE = Int8(0x50)
     static let SYSTEM_ESTOP = Int8(0x51)
-    static let SYSTEM_ENABLE = Int8(0x52)
+    static let SYSTEM_AUTO_ENABLE = Int8(0x52)
+    static let SYSTEM_MANUAL_RUN = Int8(0x53)
     static let MANUAL_THROW = Int8(0x61)
     static let MANUAL_TRICKLE = Int8(0x62)
 }
@@ -41,6 +42,7 @@ class BlePeripheral {
     static var connectedPowderDataChar: CBCharacteristic?
     static var connectedPowderListItemChar: CBCharacteristic?
     static var connectedTricklerCalDataChar: CBCharacteristic?
+    static var connectedLadderDataChar: CBCharacteristic?
 
     func writeParameterCommand(cmd: Int8, parameter: Int8) {
         let _data: [Int8] = [cmd, parameter]
@@ -74,6 +76,12 @@ class BlePeripheral {
         print("BlePeripheral::writeConfigData()")
         print("outgoingData.count: \(outgoingData.count)")
         BlePeripheral.connectedPeripheral?.writeValue(outgoingData, for: BlePeripheral.connectedConfigDataChar!, type: CBCharacteristicWriteType.withResponse)
+    }
+    
+    func writeLadderData(outgoingData: Data) {
+        print("BlePeripheral::writeLadderData()")
+        print("outgoingData.count: \(outgoingData.count)")
+        BlePeripheral.connectedPeripheral?.writeValue(outgoingData, for: BlePeripheral.connectedLadderDataChar!, type: CBCharacteristicWriteType.withResponse)
     }
 }
 
