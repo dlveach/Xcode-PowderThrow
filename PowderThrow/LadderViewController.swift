@@ -156,6 +156,7 @@ class LadderViewController: UIViewController, UITextFieldDelegate {
     func writeLadderDataToBLE() {
         var _data: Data = Data(bytes: &g_ladder_data.is_configured, count: MemoryLayout<Bool>.stride)
         _data.append(Data(bytes: &g_ladder_data.step_count, count: MemoryLayout<Int32>.stride))
+        _data.append(Data(bytes: &g_ladder_data.current_step, count: MemoryLayout<Int32>.stride))
         _data.append(Data(bytes: &g_ladder_data.start_weight, count: MemoryLayout<Float32>.stride))
         _data.append(Data(bytes: &g_ladder_data.step_interval, count: MemoryLayout<Float32>.stride))
 

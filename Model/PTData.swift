@@ -19,10 +19,11 @@ let GM_TO_GN_FACTOR: Float = Float(0.06479891)
 struct LadderData {
     var is_configured: Bool
     var step_count: Int32
+    var current_step: Int32
     var start_weight: Float32
     var step_interval: Float32
 }
-var g_ladder_data = LadderData(is_configured: false, step_count: 0, start_weight: 0.0, step_interval: 0.0)
+var g_ladder_data = LadderData(is_configured: false, step_count: 0, current_step: 0, start_weight: 0.0, step_interval: 0.0)
 
 
 // MARK: - Preset Manager
