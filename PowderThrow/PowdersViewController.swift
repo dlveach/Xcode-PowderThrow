@@ -10,9 +10,10 @@ import CoreBluetooth
 
 // MARK: - PowdersViewController
 
-class  PowdersViewController: UIViewController, UITextFieldDelegate, PowderChangeListener {
+class  PowdersViewController: UIViewController, UITextFieldDelegate, PowderChangeListener, ScreenChangeListener {
 
     private var _isEditing = false
+    var ble_nav = false
 
     @IBOutlet weak var powderNameLabel: UILabel!
     @IBOutlet weak var powderFactorLabel: UILabel!
@@ -50,9 +51,12 @@ class  PowdersViewController: UIViewController, UITextFieldDelegate, PowderChang
             let isPopping = !nav.viewControllers.contains(self)
             if isPopping {
                 // popping off nav
-                BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SYSTEM_SET_STATE, parameter: Int8(RunDataManager.system_state.Presets.rawValue))
+                if !ble_nav {
+                    BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SYSTEM_SET_STATE, parameter: Int8(RunDataManager.system_state.Presets.rawValue))
+                }
                 g_powder_manager.removeListener(self)
-            } 
+                g_screen_manager.removeListener(self)
+            }
         } else {
             // not on nav at all
             print("ERROR: View \(String(describing: self)) is not on nav controller at all!")
@@ -76,7 +80,8 @@ class  PowdersViewController: UIViewController, UITextFieldDelegate, PowderChang
 
         // Add self to managers as listener
         g_powder_manager.addListener(self)
-        
+        g_screen_manager.addListener(self)
+
         // Set delgates
         powderNameField.delegate = self
         powderFactorField.delegate = self
@@ -99,6 +104,15 @@ class  PowdersViewController: UIViewController, UITextFieldDelegate, PowderChang
     }
     
     // MARK: - Data Listener Callbacks
+
+    func screenChanged(to new_screen: ScreenChangeManager.Screen) {
+        if new_screen == ScreenChangeManager.Screen.ViewController {
+            _ = self.navigationController?.popToRootViewController(animated: true)
+            ble_nav = true
+        } else {
+            print("Powders VC: ignoring screen change to view controller: \(new_screen.description)")
+        }
+    }
 
     func powderChanged(to new_powder: PowderManager.PowderData) {
         powderNameField.text = new_powder.powder_name.trimmingCharacters(in: .whitespacesAndNewlines)

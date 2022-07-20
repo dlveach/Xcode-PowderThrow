@@ -10,7 +10,7 @@
 import UIKit
 import CoreBluetooth
 
-class  PresetsViewController: UIViewController, UITextFieldDelegate, PresetChangeListener, PowderChangeListener {
+class  PresetsViewController: UIViewController, UITextFieldDelegate, PresetChangeListener, PowderChangeListener, ScreenChangeListener {
     
     private var _isEditing = false
     
@@ -34,7 +34,9 @@ class  PresetsViewController: UIViewController, UITextFieldDelegate, PresetChang
     @IBOutlet weak var brassNameLabel: UILabel!
     
     // MARK: - Custom View Navigation
-    
+
+    var ble_nav = false
+
     // Custom back button action
     @objc func back(sender: UIBarButtonItem) {
         if _isEditing {
@@ -53,8 +55,13 @@ class  PresetsViewController: UIViewController, UITextFieldDelegate, PresetChang
             let isPopping = !nav.viewControllers.contains(self)
             if isPopping {
                 // popping off nav
-                BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SYSTEM_SET_STATE, parameter: Int8(RunDataManager.system_state.Menu.rawValue))
+                if !ble_nav {
+                    // it's local nav, send state change
+                    BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SYSTEM_SET_STATE, parameter: Int8(RunDataManager.system_state.Menu.rawValue))
+                    ble_nav = false;  //TODO: set false should not be needed if object is destroyed
+                }
                 g_preset_manager.removeListener(self)
+                g_screen_manager.removeListener(self)
             } 
         } else {
             print("ERROR: View \(String(describing: self)) is not on nav controller at all!")
@@ -79,7 +86,8 @@ class  PresetsViewController: UIViewController, UITextFieldDelegate, PresetChang
         // Add self to managers as listener
         g_preset_manager.addListener(self)
         g_powder_manager.addListener(self)
-        
+        g_screen_manager.addListener(self)
+
         // Set delgates
         presetNameTextField.delegate = self
         chargeWtTextField.delegate = self
@@ -106,6 +114,15 @@ class  PresetsViewController: UIViewController, UITextFieldDelegate, PresetChang
     }
         
     // MARK: - Data Listener Callbacks
+    
+    func screenChanged(to new_screen: ScreenChangeManager.Screen) {
+        if new_screen == ScreenChangeManager.Screen.ViewController {
+            ble_nav = true //flag to avoid writing BLE state changes
+            _ = self.navigationController?.popViewController(animated: true)
+        } else {
+            print("Presets VC: ignoring screen change to view controller: \(new_screen.description)")
+        }
+    }
     
     func presetChanged(to new_preset: PresetManager.PresetData) {
         presetNameTextField.text = new_preset.preset_name.trimmingCharacters(in: .whitespacesAndNewlines)

@@ -8,7 +8,7 @@
 import UIKit
 import CoreBluetooth
 
-class  SettingsViewController: UIViewController, UITextFieldDelegate, ConfigDataChangeListener, TricklerCalDataChangeListener {
+class  SettingsViewController: UIViewController, UITextFieldDelegate, ConfigDataChangeListener, TricklerCalDataChangeListener, ScreenChangeListener {
     
     private var _isEditing = false
 
@@ -39,6 +39,7 @@ class  SettingsViewController: UIViewController, UITextFieldDelegate, ConfigData
     @IBOutlet weak var editSaveButton: UIButton!
     
     var _trickler_calibration_running: Bool = false
+    var ble_nav = false
 
     // MARK: - Custom View navigation
     
@@ -60,10 +61,15 @@ class  SettingsViewController: UIViewController, UITextFieldDelegate, ConfigData
             let isPopping = !nav.viewControllers.contains(self)
             if isPopping {
                 // popping off nav
-                BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SYSTEM_SET_STATE, parameter: Int8(RunDataManager.system_state.Menu.rawValue))
+                if !ble_nav {
+                    // it's local nav, send state change
+                    BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SYSTEM_SET_STATE, parameter: Int8(RunDataManager.system_state.Menu.rawValue))
+                    ble_nav = false;  //TODO: set false should not be needed if object is destroyed
+                }
                 // Remove self from listeners
                 g_config_data_manager.removeListener(self)
                 g_trickler_cal_data_manager.removeListener(self)
+                g_screen_manager.removeListener(self)
             } 
         } else {
             // not on nav at all
@@ -89,7 +95,8 @@ class  SettingsViewController: UIViewController, UITextFieldDelegate, ConfigData
         // Add self as listener to manager(s)
         g_config_data_manager.addListener(self)
         g_trickler_cal_data_manager.addListener(self)
-        
+        g_screen_manager.addListener(self)
+
         // Set text field delagets
         decelThreshold.delegate = self
         bumpThreshold.delegate = self
@@ -113,6 +120,15 @@ class  SettingsViewController: UIViewController, UITextFieldDelegate, ConfigData
     
     // MARK: - Data Listener callbacks
     
+    func screenChanged(to new_screen: ScreenChangeManager.Screen) {
+        if new_screen == ScreenChangeManager.Screen.ViewController {
+            ble_nav = true //flag to avoid writing BLE state changes
+            _ = self.navigationController?.popViewController(animated: true)
+        } else {
+            print("Settings VC: ignoring screen change to view controller: \(new_screen.description)")
+        }
+    }
+
     func configDataChanged(to new_data: ConfigDataManager.ConfigData) {
         configVersionLabel.text = "Config Version: \(new_data.config_version)"
         decelThreshold.text = String(format: "%4.2f", new_data.decel_threshold)

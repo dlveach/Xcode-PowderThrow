@@ -43,6 +43,7 @@ class BlePeripheral {
     static var connectedPowderListItemChar: CBCharacteristic?
     static var connectedTricklerCalDataChar: CBCharacteristic?
     static var connectedLadderDataChar: CBCharacteristic?
+    static var connectedScreenNavigationChar: CBCharacteristic?
 
     func writeParameterCommand(cmd: Int8, parameter: Int8) {
         let _data: [Int8] = [cmd, parameter]

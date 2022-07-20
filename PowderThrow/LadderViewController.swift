@@ -8,10 +8,11 @@
 import UIKit
 import CoreBluetooth
 
-class LadderViewController: UIViewController, UITextFieldDelegate {
+class LadderViewController: UIViewController, UITextFieldDelegate, ScreenChangeListener {
 
     private var _isEditing = false
-    
+    var ble_nav = false
+
     @IBOutlet weak var powderNameLabel: UILabel!
     @IBOutlet weak var startGrainsField: UITextField!
     @IBOutlet weak var numberOfStepsField: UITextField!
@@ -50,10 +51,7 @@ class LadderViewController: UIViewController, UITextFieldDelegate {
         if let nav = self.navigationController {
             let isPopping = !nav.viewControllers.contains(self)
             if isPopping {
-                // popping off nav
-//                BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SYSTEM_SET_STATE, parameter: Int8(RunDataManager.system_state.Menu.rawValue))
-                // maybe return to manual ladder run state (i.e. manual or "auto disabled")?
-                
+                g_screen_manager.removeListener(self)
             }
         } else {
             // not on nav at all
@@ -103,11 +101,20 @@ class LadderViewController: UIViewController, UITextFieldDelegate {
             clearButton.isHidden = true
         }
         powderNameLabel.text = g_powder_manager.currentPowder.powder_name
+        g_screen_manager.addListener(self)
     }
 
     // MARK: - Change Listener Callbacks
 
-    
+    func screenChanged(to new_screen: ScreenChangeManager.Screen) {
+        if new_screen == ScreenChangeManager.Screen.ViewController {
+            _ = self.navigationController?.popToRootViewController(animated: true)
+            ble_nav = true
+        } else {
+            print("Ladder VC: ignoring screen change to view controller: \(new_screen.description)")
+        }
+    }
+
     
     // MARK: - Button Handlers
 
@@ -120,6 +127,7 @@ class LadderViewController: UIViewController, UITextFieldDelegate {
         g_ladder_data.step_count = Int32(numberOfStepsField.text!.trimmingCharacters(in: .whitespacesAndNewlines))!
         g_ladder_data.start_weight = Float32(startGrainsField.text!.trimmingCharacters(in: .whitespacesAndNewlines))!
         g_ladder_data.step_interval = Float32(grainsPerStepField.text!.trimmingCharacters(in: .whitespacesAndNewlines))!
+        g_ladder_data.current_step = 1
         
         writeLadderDataToBLE()
                 
@@ -144,6 +152,7 @@ class LadderViewController: UIViewController, UITextFieldDelegate {
         g_ladder_data.is_configured = false
         g_ladder_data.start_weight = 0
         g_ladder_data.step_count = 0
+        g_ladder_data.current_step = 0
         g_ladder_data.step_interval = 0
         
         writeLadderDataToBLE()
@@ -188,7 +197,6 @@ class LadderViewController: UIViewController, UITextFieldDelegate {
     
     @IBAction func startGrainsFieldEndEdit(_ sender: Any) {
         var err = true
-        print("startGrainsField count: \(startGrainsField.text!.count)")
         if startGrainsField.text!.count >= 3 && startGrainsField.text!.count <= 6 {
             var str = startGrainsField.text!.trimmingCharacters(in: .whitespacesAndNewlines)
             if let val = Float(str) {

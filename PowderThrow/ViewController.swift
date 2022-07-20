@@ -11,8 +11,7 @@ import UIKit
 import CoreBluetooth
 
 // MARK: -  Class: ViewController
-//class  ViewController: UIViewController, RunDataChangeListener, PresetChangeListener, PowderChangeListener
-class  ViewController: UIViewController, PresetChangeListener, PowderChangeListener {
+class  ViewController: UIViewController, PresetChangeListener, PowderChangeListener, ScreenChangeListener {
 
     private var centralManager: CBCentralManager!
     private var myPeripheral: CBPeripheral!
@@ -29,6 +28,7 @@ class  ViewController: UIViewController, PresetChangeListener, PowderChangeListe
     private var powderListItemChar: CBCharacteristic!
     private var tricklerCalDataChar: CBCharacteristic!
     private var ladderDataChar: CBCharacteristic!
+    private var screenNavigationChar: CBCharacteristic!
 
     @IBOutlet weak var connectButton: UIButton!
     @IBOutlet weak var spinnerView: UIActivityIndicatorView!
@@ -41,8 +41,7 @@ class  ViewController: UIViewController, PresetChangeListener, PowderChangeListe
     @IBOutlet weak var targetWeightLabel: UILabel!
 
     var isLoadingData: Bool = true
-    
-    
+
     // MARK: - UI handlers
     
     // MARK: - Support Functions
@@ -79,6 +78,23 @@ class  ViewController: UIViewController, PresetChangeListener, PowderChangeListe
     }
     
     // MARK: - Change Listener Callbacks
+
+    func screenChanged(to new_screen: ScreenChangeManager.Screen) {
+        //print("Menu (root) VC: Num Screens: \(self.navigationController?.viewControllers.count ?? -1)")
+        if new_screen == ScreenChangeManager.Screen.GoBack {
+            print("WARN: 'GoBack' is deprecated. TODO: remove")
+        } else if new_screen == ScreenChangeManager.Screen.ViewController {
+            print("Menu VC: ignoring change to go to Menu.")
+        } else {
+            print("Menu VC: loading screen \(new_screen.description)")
+            let screen_name = new_screen.description
+            if let nextView = self.storyboard?.instantiateViewController(identifier: screen_name) {
+                self.navigationController?.pushViewController(nextView, animated: true)
+            } else {
+                print("ERROR: unknown screen view controller: \(new_screen.description)")
+            }
+        }
+    }
 
     func presetChanged(to new_preset: PresetManager.PresetData) {
         print("main screen setting preset field")
@@ -127,6 +143,7 @@ class  ViewController: UIViewController, PresetChangeListener, PowderChangeListe
         isLoadingData = true
         g_preset_manager.addListener(self)
         g_powder_manager.addListener(self)
+        g_screen_manager.addListener(self)
     }
     
     func startScanning() -> Void {
@@ -352,6 +369,12 @@ extension  ViewController: CBPeripheralDelegate {
                 //peripheral.setNotifyValue(true, for: characteristic)
                 print("Ladder Data Characteristic: \(ladderDataChar.uuid)")
             }
+            if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Screen_Navigation_UUID)  {
+                screenNavigationChar = characteristic
+                BlePeripheral.connectedScreenNavigationChar = screenNavigationChar
+                peripheral.setNotifyValue(true, for: characteristic)
+                print("Screen Navigation Characteristic: \(screenNavigationChar.uuid)")
+            }
         }
         
         //TODO: is there any way to validate all characteristics were found?
@@ -384,6 +407,16 @@ extension  ViewController: CBPeripheralDelegate {
                 g_rundata_manager.currentRunData.scale_in_grains = grains
                 let val = Array(dd[1...4]).withUnsafeBytes { $0.load(as: Float32.self) }
                 g_rundata_manager.currentRunData.target_weight = val
+            } else if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Screen_Navigation_UUID) {
+                print("BLE screen navigation update.")
+                let val = Array(dd[0...3]).withUnsafeBytes { $0.load(as: Int32.self) }
+                print("New screen value: \(val)")
+                if let screen = ScreenChangeManager.Screen(rawValue: val) {
+                    print("New screen view: \(screen.description)")
+                    g_screen_manager.currentScreen = screen
+                } else {
+                    print("ERROR: unable to determine new screen view")
+                }
             } else if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Trickler_Cal_Data_UUID) {
                 print("Trickler Calibration Data")
                 print("Size of data: \(dd.count)")

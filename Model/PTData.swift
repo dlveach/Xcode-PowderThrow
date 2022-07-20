@@ -9,6 +9,7 @@
 
 import Foundation
 
+// Constants and definitions (must match peripheral)
 let MAX_NAME_LEN = 16
 let MAX_PRESETS = 25
 let MAX_POWDERS = 25
@@ -25,6 +26,52 @@ struct LadderData {
 }
 var g_ladder_data = LadderData(is_configured: false, step_count: 0, current_step: 0, start_weight: 0.0, step_interval: 0.0)
 
+
+// MARK: - Screen Manager
+protocol ScreenChangeListener: AnyObject {
+    func screenChanged(to new_screen: ScreenChangeManager.Screen)
+}
+
+let g_screen_manager = ScreenChangeManager()
+
+class ScreenChangeManager {
+    private var _screen: Screen
+    private var listeners: [ScreenChangeListener]
+
+    enum Screen: Int32 {
+        case GoBack // maybe not gonna use this?
+        case ViewController
+        case RunThrowerViewController
+        case SettingsViewController
+        case PresetsViewController
+        case PowdersViewController
+        var description: String {
+            return "\(self)"
+        }
+    }
+
+    init() {
+        _screen = Screen.ViewController
+        listeners = []
+    }
+    func addListener(_ listener: ScreenChangeListener) {
+        listeners.append(listener)
+    }
+    func removeListener(_ listener: ScreenChangeListener) {
+        if let index = listeners.firstIndex(where: { $0 === listener }) {
+            listeners.remove(at: index)
+        }
+    }
+    func invoke() {
+        for listener in listeners {
+            listener.screenChanged(to: _screen)
+        }
+    }
+    var currentScreen: Screen {
+        get { return _screen }
+        set {_screen = newValue; invoke() }
+    }
+}
 
 // MARK: - Preset Manager
 
@@ -74,7 +121,6 @@ class PresetManager {
     
     // Invoke the "changed" method on all listeners
     func invoke() {
-        print("PresetManager.invoke()")
         for listener in listeners {
             listener.presetChanged(to: currentPreset)
         }

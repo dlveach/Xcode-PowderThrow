@@ -11,7 +11,7 @@
         <!--View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="PowderThrow" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="ViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="BYZ-38-t0r" customClass="ViewController" customModule="PowderThrow" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -170,7 +170,7 @@
         <!-- Settings-->
         <scene sceneID="zNe-F5-AAK">
             <objects>
-                <viewController id="nhN-MA-Ojj" customClass="SettingsViewController" customModule="PowderThrow" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="SettingsViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="nhN-MA-Ojj" customClass="SettingsViewController" customModule="PowderThrow" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="e6H-qh-U1x">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -511,7 +511,7 @@
         <!--Run Thrower View Controller-->
         <scene sceneID="7MB-tQ-osY">
             <objects>
-                <viewController id="zeI-nl-y5r" customClass="RunThrowerViewController" customModule="PowderThrow" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="RunThrowerViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="zeI-nl-y5r" customClass="RunThrowerViewController" customModule="PowderThrow" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="lh4-Cx-1OC">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -640,7 +640,7 @@
                             <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UQg-sY-Zxp" userLabel="Ladder Previous Button">
                                 <rect key="frame" x="56" y="318" width="30" height="30"/>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <state key="normal" image="arrowshape.turn.up.left.fill" catalog="system">
+                                <state key="normal" image="downArrow">
                                     <color key="titleColor" red="0.99999600649999998" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 </state>
                                 <connections>
@@ -650,7 +650,7 @@
                             <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ob3-iX-dZi" userLabel="Ladder Next Button">
                                 <rect key="frame" x="278" y="318" width="30" height="30"/>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <state key="normal" image="arrowshape.turn.up.right.fill" catalog="system">
+                                <state key="normal" image="upArrow">
                                     <color key="titleColor" red="0.99999600649999998" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 </state>
                                 <connections>
@@ -731,7 +731,7 @@
         <!--Ladder View Controller-->
         <scene sceneID="kfN-UL-xMl">
             <objects>
-                <viewController id="dq9-v4-b0k" customClass="LadderViewController" customModule="PowderThrow" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="LadderViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="dq9-v4-b0k" customClass="LadderViewController" customModule="PowderThrow" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="WZc-2x-yJV">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -874,7 +874,7 @@
         <!--Presets-->
         <scene sceneID="9EG-9Y-auu">
             <objects>
-                <viewController id="kk6-mZ-nhu" customClass="PresetsViewController" customModule="PowderThrow" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="PresetsViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="kk6-mZ-nhu" customClass="PresetsViewController" customModule="PowderThrow" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="iz7-RG-sxf">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -1073,7 +1073,7 @@
         <!--Powders-->
         <scene sceneID="yAT-AL-wRh">
             <objects>
-                <viewController id="srJ-Ir-bMB" customClass="PowdersViewController" customModule="PowderThrow" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="PowdersViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="srJ-Ir-bMB" customClass="PowdersViewController" customModule="PowderThrow" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="qsG-QB-cyb">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -1182,8 +1182,8 @@
         </scene>
     </scenes>
     <resources>
-        <image name="arrowshape.turn.up.left.fill" catalog="system" width="128" height="106"/>
-        <image name="arrowshape.turn.up.right.fill" catalog="system" width="128" height="106"/>
+        <image name="downArrow" width="20" height="20"/>
+        <image name="upArrow" width="20" height="20"/>
         <systemColor name="systemBlueColor">
             <color red="0.0" green="0.47843137254901963" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
