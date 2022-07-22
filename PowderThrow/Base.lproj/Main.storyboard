@@ -637,39 +637,49 @@
                                     <action selector="runButtonAction:" destination="zeI-nl-y5r" eventType="touchUpInside" id="ELI-kg-d6M"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UQg-sY-Zxp" userLabel="Ladder Previous Button">
-                                <rect key="frame" x="56" y="318" width="30" height="30"/>
-                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <state key="normal" image="downArrow">
-                                    <color key="titleColor" red="0.99999600649999998" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                </state>
-                                <connections>
-                                    <action selector="prevButtonAction:" destination="zeI-nl-y5r" eventType="touchUpInside" id="jn8-UI-Nch"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ob3-iX-dZi" userLabel="Ladder Next Button">
-                                <rect key="frame" x="278" y="318" width="30" height="30"/>
-                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <state key="normal" image="upArrow">
-                                    <color key="titleColor" red="0.99999600649999998" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                </state>
-                                <connections>
-                                    <action selector="nextButtonAction:" destination="zeI-nl-y5r" eventType="touchUpInside" id="QhB-yk-hqC"/>
-                                </connections>
-                            </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="0.5" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fxb-HW-IEu" userLabel="0.5 Label">
                                 <rect key="frame" x="28" y="463" width="24" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UQg-sY-Zxp" userLabel="Ladder Previous Button">
+                                <rect key="frame" x="50" y="316" width="65" height="35"/>
+                                <color key="backgroundColor" systemColor="systemBlueColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="65" id="zzq-7H-j8i"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
+                                <inset key="titleEdgeInsets" minX="5" minY="0.0" maxX="5" maxY="0.0"/>
+                                <state key="normal" title="Prev">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                </state>
+                                <connections>
+                                    <action selector="prevButtonAction:" destination="zeI-nl-y5r" eventType="touchUpInside" id="jn8-UI-Nch"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ob3-iX-dZi" userLabel="Ladder Next Button">
+                                <rect key="frame" x="259" y="316" width="65" height="35"/>
+                                <color key="backgroundColor" systemColor="systemBlueColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="65" id="0Uc-cv-bYi"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
+                                <inset key="titleEdgeInsets" minX="5" minY="0.0" maxX="5" maxY="0.0"/>
+                                <state key="normal" title="Next">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                </state>
+                                <connections>
+                                    <action selector="nextButtonAction:" destination="zeI-nl-y5r" eventType="touchUpInside" id="QhB-yk-hqC"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="lEU-ly-8u5"/>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="NTz-9Y-GxM" firstAttribute="top" secondItem="MLi-Yh-tqz" secondAttribute="bottom" constant="8" symbolic="YES" id="1Ls-qL-fcc"/>
                             <constraint firstItem="EkS-Lr-Ir5" firstAttribute="top" secondItem="pvx-a7-Ww7" secondAttribute="bottom" constant="26" id="5Rc-bL-Yea"/>
-                            <constraint firstItem="UQg-sY-Zxp" firstAttribute="leading" secondItem="lEU-ly-8u5" secondAttribute="leading" constant="56" id="6Lw-v5-Sxg"/>
+                            <constraint firstItem="UQg-sY-Zxp" firstAttribute="leading" secondItem="lEU-ly-8u5" secondAttribute="leading" constant="50" id="6Lw-v5-Sxg"/>
                             <constraint firstItem="pvx-a7-Ww7" firstAttribute="centerX" secondItem="lEU-ly-8u5" secondAttribute="centerX" id="Dwg-Qt-ZZO"/>
                             <constraint firstItem="fBv-WF-3yy" firstAttribute="centerY" secondItem="EkS-Lr-Ir5" secondAttribute="centerY" id="Dz0-Ma-4ln"/>
                             <constraint firstItem="EkS-Lr-Ir5" firstAttribute="leading" secondItem="fBv-WF-3yy" secondAttribute="trailing" constant="46" id="Fdf-bx-oEs"/>
@@ -682,7 +692,7 @@
                             <constraint firstItem="Y2x-ME-tHz" firstAttribute="leading" secondItem="EkS-Lr-Ir5" secondAttribute="trailing" constant="20" id="O09-k2-E2p"/>
                             <constraint firstItem="e01-Yz-SG0" firstAttribute="top" secondItem="2Xh-md-wPD" secondAttribute="bottom" constant="42" id="OLW-yK-i2d"/>
                             <constraint firstItem="uGh-AU-LDQ" firstAttribute="centerY" secondItem="1Bt-4y-uju" secondAttribute="centerY" constant="-27.5" id="P0Z-tD-iF9"/>
-                            <constraint firstItem="ob3-iX-dZi" firstAttribute="centerY" secondItem="MLi-Yh-tqz" secondAttribute="centerY" id="RgK-gH-zIm"/>
+                            <constraint firstItem="ob3-iX-dZi" firstAttribute="centerY" secondItem="MLi-Yh-tqz" secondAttribute="centerY" constant="0.5" id="RgK-gH-zIm"/>
                             <constraint firstItem="lEU-ly-8u5" firstAttribute="trailing" secondItem="1Bt-4y-uju" secondAttribute="trailing" constant="59" id="TPQ-in-SFT"/>
                             <constraint firstItem="mMg-KB-TgL" firstAttribute="centerX" secondItem="fBv-WF-3yy" secondAttribute="centerX" id="VoS-GJ-Frq"/>
                             <constraint firstItem="Y2x-ME-tHz" firstAttribute="centerY" secondItem="EkS-Lr-Ir5" secondAttribute="centerY" id="Wbr-Ot-cje"/>
@@ -692,9 +702,9 @@
                             <constraint firstItem="2Xh-md-wPD" firstAttribute="top" secondItem="kPF-E8-fZM" secondAttribute="bottom" constant="10" id="brQ-4s-4eU"/>
                             <constraint firstItem="1Bt-4y-uju" firstAttribute="top" secondItem="NTz-9Y-GxM" secondAttribute="bottom" constant="72" id="cLS-8L-536"/>
                             <constraint firstItem="pvx-a7-Ww7" firstAttribute="top" secondItem="nXQ-Nv-nog" secondAttribute="bottom" constant="48" id="dqt-9Z-TGl"/>
-                            <constraint firstItem="UQg-sY-Zxp" firstAttribute="centerY" secondItem="MLi-Yh-tqz" secondAttribute="centerY" id="gLe-Nj-OFl"/>
+                            <constraint firstItem="UQg-sY-Zxp" firstAttribute="centerY" secondItem="MLi-Yh-tqz" secondAttribute="centerY" constant="0.5" id="gLe-Nj-OFl"/>
                             <constraint firstItem="nXQ-Nv-nog" firstAttribute="centerX" secondItem="lEU-ly-8u5" secondAttribute="centerX" id="gYZ-YW-DMN"/>
-                            <constraint firstItem="lEU-ly-8u5" firstAttribute="trailing" secondItem="ob3-iX-dZi" secondAttribute="trailing" constant="67" id="h4H-Lo-DgP"/>
+                            <constraint firstItem="lEU-ly-8u5" firstAttribute="trailing" secondItem="ob3-iX-dZi" secondAttribute="trailing" constant="51" id="h4H-Lo-DgP"/>
                             <constraint firstItem="2Xh-md-wPD" firstAttribute="centerX" secondItem="lEU-ly-8u5" secondAttribute="centerX" id="jcH-7y-VTC"/>
                             <constraint firstItem="1Bt-4y-uju" firstAttribute="leading" secondItem="fxb-HW-IEu" secondAttribute="trailing" constant="8" symbolic="YES" id="qix-pD-BV1"/>
                             <constraint firstItem="EkS-Lr-Ir5" firstAttribute="centerX" secondItem="lEU-ly-8u5" secondAttribute="centerX" id="saK-us-YH4"/>
@@ -1182,8 +1192,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="downArrow" width="20" height="20"/>
-        <image name="upArrow" width="20" height="20"/>
         <systemColor name="systemBlueColor">
             <color red="0.0" green="0.47843137254901963" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>

@@ -63,11 +63,8 @@ class RunThrowerViewController: UIViewController, RunDataChangeListener, ScreenC
         estopButton.layer.cornerRadius = 8
         ladderSetupButton.layer.cornerRadius = 8
         runButton.layer.cornerRadius = 8
-        
-        //estopButton.isHidden = true
-        //estopButton.isEnabled = false
-        //ladderSetupButton.isHidden = true
-
+        previousButton.layer.cornerRadius = 8
+        nextButton.layer.cornerRadius = 8
         presetNameLabel.text = g_preset_manager.currentPreset.preset_name
         powderNameLabel.text = g_powder_manager.currentPowder.powder_name
         if g_rundata_manager.currentRunData.scale_in_grains {
@@ -77,12 +74,10 @@ class RunThrowerViewController: UIViewController, RunDataChangeListener, ScreenC
             let val = (g_rundata_manager.currentRunData.target_weight * GM_TO_GN_FACTOR * 1000).rounded() / 1000
             targetWeightLabel.text = "\(val) g"
         }
-
         g_rundata_manager.addListener(self)
         g_screen_manager.addListener(self)
-
         if g_rundata_manager.currentRunData.system_state == RunDataManager.system_state.Ladder.rawValue {
-            print("DEBUG: peripheral state in ladder mode, clear any ladder data.")
+            //print("DEBUG: peripheral state in ladder mode, clear any ladder data.")
             if (!g_ladder_data.is_configured) {
                 g_ladder_data.is_configured = false
                 g_ladder_data.step_count = 0
@@ -264,31 +259,28 @@ class RunThrowerViewController: UIViewController, RunDataChangeListener, ScreenC
     }
     
     @IBAction func estopButtonAction(_ sender: Any) {
-        print("---> Writing Emergency Stop")
-        
         BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SYSTEM_ESTOP, parameter: Int8(RunDataManager.system_state.Ready.rawValue))
-
     }
     
     @IBAction func runButtonAction(_ sender: Any) {
-        print("run button pressed")
         runButton.isHidden = true
         BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SYSTEM_MANUAL_RUN, parameter: Int8(RunDataManager.system_state.Ready.rawValue))
     }
+    
     @IBAction func prevButtonAction(_ sender: Any) {
-        print("Ladder previous button.  Decrement step and write ladder BLE data")
         if g_ladder_data.current_step > 1 {
             g_ladder_data.current_step = g_ladder_data.current_step - 1
             writeLadderDataToBLE()
         }
     }
+    
     @IBAction func nextButtonAction(_ sender: Any) {
-        print("Ladder next button.  Increment step and write ladder BLE data")
         if g_ladder_data.current_step < g_ladder_data.step_count {
             g_ladder_data.current_step = g_ladder_data.current_step + 1
             writeLadderDataToBLE()
         }
     }
+    
     func writeLadderDataToBLE() {
         var _data: Data = Data(bytes: &g_ladder_data.is_configured, count: MemoryLayout<Bool>.stride)
         _data.append(Data(bytes: &g_ladder_data.step_count, count: MemoryLayout<Int32>.stride))
@@ -296,8 +288,8 @@ class RunThrowerViewController: UIViewController, RunDataChangeListener, ScreenC
         _data.append(Data(bytes: &g_ladder_data.start_weight, count: MemoryLayout<Float32>.stride))
         _data.append(Data(bytes: &g_ladder_data.step_interval, count: MemoryLayout<Float32>.stride))
 
-        print("bytes to send: \(_data.count)")
-        print("_data: \(String(describing: Array(_data)))")
+        //print("bytes to send: \(_data.count)")
+        //print("_data: \(String(describing: Array(_data)))")
 
         BlePeripheral().writeLadderData(outgoingData: _data)
     }

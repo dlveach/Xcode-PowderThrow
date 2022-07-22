@@ -41,10 +41,6 @@ class  ViewController: UIViewController, PresetChangeListener, PowderChangeListe
     @IBOutlet weak var targetWeightLabel: UILabel!
 
     var isLoadingData: Bool = true
-
-    // MARK: - UI handlers
-    
-    // MARK: - Support Functions
         
     //MARK: ViewDidLoad
     
@@ -75,6 +71,13 @@ class  ViewController: UIViewController, PresetChangeListener, PowderChangeListe
         targetWeightLabel.isHidden = true
         
         //TODO: parameter command to request config (and current preset/powder?).  Is this needed?
+        
+        //TESTING: try clearing ladder data (may need to do this on connect?)
+        g_ladder_data.is_configured = false
+        g_ladder_data.start_weight = 0.0
+        g_ladder_data.step_interval = 0.0
+        g_ladder_data.step_count = 0
+        g_ladder_data.current_step = 0
     }
     
     // MARK: - Change Listener Callbacks
@@ -86,7 +89,7 @@ class  ViewController: UIViewController, PresetChangeListener, PowderChangeListe
         } else if new_screen == ScreenChangeManager.Screen.ViewController {
             print("Menu VC: ignoring change to go to Menu.")
         } else {
-            print("Menu VC: loading screen \(new_screen.description)")
+            //print("Menu VC: loading screen \(new_screen.description)")
             let screen_name = new_screen.description
             if let nextView = self.storyboard?.instantiateViewController(identifier: screen_name) {
                 self.navigationController?.pushViewController(nextView, animated: true)
@@ -97,9 +100,9 @@ class  ViewController: UIViewController, PresetChangeListener, PowderChangeListe
     }
 
     func presetChanged(to new_preset: PresetManager.PresetData) {
-        print("main screen setting preset field")
-        print("new preset charge weight: \(new_preset.charge_weight)")
-        print("g_powder_manager current powder.powder_factor: \(g_powder_manager.currentPowder.powder_factor)")
+        //print("main screen setting preset field")
+        //print("new preset charge weight: \(new_preset.charge_weight)")
+        //print("g_powder_manager current powder.powder_factor: \(g_powder_manager.currentPowder.powder_factor)")
         //check preset data & enable run button
         if new_preset.charge_weight > 0 && g_powder_manager.currentPowder.powder_factor > 0 {
             presetNameLabel.text = new_preset.preset_name
@@ -127,7 +130,7 @@ class  ViewController: UIViewController, PresetChangeListener, PowderChangeListe
     }
     
     func powderChanged(to new_powder: PowderManager.PowderData) {
-        print("main screen setting powder field")
+        //print("main screen setting powder field")
         powderNameLabel.text = new_powder.powder_name
     }
 
@@ -148,20 +151,19 @@ class  ViewController: UIViewController, PresetChangeListener, PowderChangeListe
     
     func startScanning() -> Void {
         // Start Scanning
-        print("Start scanning ...")
+        //print("Start scanning ...")
         centralManager?.scanForPeripherals(withServices: [CBUUIDs.BLEService_UUID])
         title = "PowderThrow: Scanning..."
     }
 
     func stopScanning() -> Void {
-        print("Stop Scanning.")
+        //print("Stop Scanning.")
         centralManager?.stopScan()
         title = "PowderThrow: Scanning stopped."
     }
     
     func setNotConnectedView() {
         title = "PowderThrow: Not Connected."
-
         connectButton.isEnabled = true
         connectButton.layer.backgroundColor = UIColor.systemBlue.cgColor
         connectButton.isHidden = false
@@ -183,14 +185,12 @@ class  ViewController: UIViewController, PresetChangeListener, PowderChangeListe
 }
 
 // MARK: - CBCentralManagerDelegate
-// A protocol that provides updates for the discovery and management of peripheral devices.
-extension  ViewController: CBCentralManagerDelegate {
 
-    // MARK: - Check
+extension  ViewController: CBCentralManagerDelegate {
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
       switch central.state {
         case .poweredOff:
-            print("Is Powered Off.")
+            //print("BLE Powered Off.")
             let alertVC = UIAlertController(title: "Bluetooth Required", message: "Check your Bluetooth Settings", preferredStyle: UIAlertController.Style.alert)
             let action = UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: { (action: UIAlertAction) -> Void in
                 self.dismiss(animated: true, completion: nil)
@@ -198,56 +198,51 @@ extension  ViewController: CBCentralManagerDelegate {
             alertVC.addAction(action)
             self.present(alertVC, animated: true, completion: nil)
         case .poweredOn:
-            print("Is Powered On.")
+            //print("BLE Powered On.")
             setNotConnectedView()
         case .unsupported:
-            print("Is Unsupported.")
+            print("BLE Unsupported.")
         case .unauthorized:
-            print("Is Unauthorized.")
+            print("BLE Unauthorized.")
         case .unknown:
-            print("Unknown")
+            print("BLE Unknown state for Central")
         case .resetting:
-            print("Resetting")
+            print("BLE Resetting")
         @unknown default:
-            print("Error")
+            print("BLE Unknown Error")
         }
     }
 
     // MARK: - Discover
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
-        print("Function: \(#function),Line: \(#line)")
+        //print("Function: \(#function),Line: \(#line)")
         centralManager.stopScan()
         myPeripheral = peripheral
         myPeripheral.delegate = self
         title = "PowderThrow: Peripheral found."
-        print("Peripheral Discovered: \(peripheral)")
+        //print("Peripheral Discovered: \(peripheral)")
         BlePeripheral.connectedPeripheral = myPeripheral
-        print("Connecting ...")
-        
+        //print("Connecting ...")
         print("---> TODO: impliment timeout on connect")
-        
         title = "PowderThrow: Connecting ..."
         centralManager.connect(peripheral, options: nil)
-        
         progressView.progress = 2.0/55.0
     }
 
     // MARK: - Connect
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         stopScanning()
-        print("Connected.")
+        //print("Connected.")
         title = "PowderThrow: Reading Services ...."
-        print("Discovering services ...")
+        //print("Discovering services ...")
         myPeripheral.discoverServices([CBUUIDs.BLEService_UUID])
     }
     
     // MARK: - Disconnect
     
     func centralManager (_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
-        print("Perhipheral disconnected.")
+        //print("Perhipheral disconnected.")
         title = "PowderThrow: Disconnected."
-        print("TODO: pop screens back to main and reset for reconnection.")
-        
         if let nav = self.navigationController {
             let targetVC = nav.viewControllers.first{$0 is ViewController}
             if let targetVC = targetVC {
@@ -279,107 +274,102 @@ extension  ViewController: CBPeripheralDelegate {
     // MARK: - Discover Characteristics
     
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
-        guard let characteristics = service.characteristics else {
-            return
-        }
-        print("Found \(characteristics.count) characteristics.")
+        guard let characteristics = service.characteristics else { return }
+        //print("Found \(characteristics.count) characteristics.")
         for characteristic in characteristics {
             if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Parameter_Command_UUID) {
                 parameterCommandChar = characteristic
                 BlePeripheral.connectedParameterCommandChar = parameterCommandChar
-                print("Parameter Command Characteristic: \(parameterCommandChar.uuid)")
+                //print("Parameter Command Characteristic: \(parameterCommandChar.uuid)")
             }
             if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Weight_UUID) {
                 weightChar = characteristic
                 BlePeripheral.connectedWeightChar = weightChar
                 peripheral.setNotifyValue(true, for: characteristic)
                 peripheral.readValue(for: characteristic)
-                print("Scale Weight Characteristic: \(weightChar.uuid)")
+                //print("Scale Weight Characteristic: \(weightChar.uuid)")
             }
             if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Target_UUID) {
                 scaleTargetCharacteristic = characteristic
                 BlePeripheral.connectedTargetChar = scaleTargetCharacteristic
                 peripheral.setNotifyValue(true, for: characteristic)
                 peripheral.readValue(for: characteristic)
-                print("Scale Target Characteristic: \(scaleTargetCharacteristic.uuid)")
+                //print("Scale Target Characteristic: \(scaleTargetCharacteristic.uuid)")
             }
             if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Cond_UUID) {
                 condCharacteristic = characteristic
                 BlePeripheral.connectedCondChar = condCharacteristic
                 peripheral.setNotifyValue(true, for: characteristic)
                 peripheral.readValue(for: characteristic)
-                print("Scale Cond Characteristic: \(condCharacteristic.uuid)")
+                //print("Scale Cond Characteristic: \(condCharacteristic.uuid)")
             }
             if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_State_UUID) {
                 stateChar = characteristic
                 BlePeripheral.connectedStateChar = stateChar
                 peripheral.setNotifyValue(true, for: characteristic)
                 peripheral.readValue(for: characteristic)
-                print("System State Characteristic: \(stateChar.uuid)")
+                //print("System State Characteristic: \(stateChar.uuid)")
             }
             if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Decel_Thresh_UUID) {
                 decelThreshChar = characteristic
                 BlePeripheral.connectedDecelThreshChar = decelThreshChar
                 peripheral.setNotifyValue(true, for: characteristic)
                 peripheral.readValue(for: characteristic)
-                print("Decel Thresh Characteristic: \(decelThreshChar.uuid)")
+                //print("Decel Thresh Characteristic: \(decelThreshChar.uuid)")
             }
             if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Config_Data_UUID) {
                 configDataChar = characteristic
                 BlePeripheral.connectedConfigDataChar = configDataChar
                 peripheral.setNotifyValue(true, for: characteristic)
                 peripheral.readValue(for: characteristic)
-                print("Configuration Data Characteristic: \(configDataChar.uuid)")
+                //print("Configuration Data Characteristic: \(configDataChar.uuid)")
             }
             if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Preset_Data_UUID) {
                 presetDataChar = characteristic
                 BlePeripheral.connectedPresetDataChar = presetDataChar
                 peripheral.setNotifyValue(true, for: characteristic)
                 peripheral.readValue(for: characteristic)
-                print("Preset Data Characteristic: \(presetDataChar.uuid)")
+                //print("Preset Data Characteristic: \(presetDataChar.uuid)")
             }
             if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Powder_Data_UUID) {
                 powderDataChar = characteristic
                 BlePeripheral.connectedPowderDataChar = powderDataChar
                 peripheral.setNotifyValue(true, for: characteristic)
                 peripheral.readValue(for: characteristic)
-                print("Powder Data Characteristic: \(powderDataChar.uuid)")
+                //print("Powder Data Characteristic: \(powderDataChar.uuid)")
             }
             if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Preset_List_Item_UUID) {
                 presetListItemChar = characteristic
                 BlePeripheral.connectedPresetListItemChar = presetListItemChar
                 peripheral.setNotifyValue(true, for: characteristic)
-                print("Preset List Item Characteristic: \(presetListItemChar.uuid)")
+                //print("Preset List Item Characteristic: \(presetListItemChar.uuid)")
             }
             if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Powder_List_Item_UUID)  {
                 powderListItemChar = characteristic
                 BlePeripheral.connectedPowderListItemChar = powderListItemChar
                 peripheral.setNotifyValue(true, for: characteristic)
-                print("Powder List Item Characteristic: \(powderListItemChar.uuid)")
+                //print("Powder List Item Characteristic: \(powderListItemChar.uuid)")
             }
             if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Trickler_Cal_Data_UUID)  {
                 tricklerCalDataChar = characteristic
                 BlePeripheral.connectedTricklerCalDataChar = tricklerCalDataChar
                 peripheral.setNotifyValue(true, for: characteristic)
-                print("Trickler Cal Data Characteristic: \(tricklerCalDataChar.uuid)")
+                //print("Trickler Cal Data Characteristic: \(tricklerCalDataChar.uuid)")
             }
             if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Ladder_Data_UUID)  {
                 ladderDataChar = characteristic
                 BlePeripheral.connectedLadderDataChar = ladderDataChar
-                //peripheral.setNotifyValue(true, for: characteristic)
-                print("Ladder Data Characteristic: \(ladderDataChar.uuid)")
+                //print("Ladder Data Characteristic: \(ladderDataChar.uuid)")
             }
             if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Screen_Navigation_UUID)  {
                 screenNavigationChar = characteristic
                 BlePeripheral.connectedScreenNavigationChar = screenNavigationChar
                 peripheral.setNotifyValue(true, for: characteristic)
-                print("Screen Navigation Characteristic: \(screenNavigationChar.uuid)")
+                //print("Screen Navigation Characteristic: \(screenNavigationChar.uuid)")
             }
         }
-        
         //TODO: is there any way to validate all characteristics were found?
-        
-        print("All Characteristics registered, start loading preset data.")
+        //print("All Characteristics registered, start loading preset data.")
         title = "PowderThrow: Loading Data ...."
         BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.PRESET_NAME_BY_INDEX, parameter: Int8(1))
         progressView.progress = 4.0/55.0
@@ -408,36 +398,33 @@ extension  ViewController: CBPeripheralDelegate {
                 let val = Array(dd[1...4]).withUnsafeBytes { $0.load(as: Float32.self) }
                 g_rundata_manager.currentRunData.target_weight = val
             } else if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Screen_Navigation_UUID) {
-                print("BLE screen navigation update.")
+                //print("BLE screen navigation update.")
                 let val = Array(dd[0...3]).withUnsafeBytes { $0.load(as: Int32.self) }
-                print("New screen value: \(val)")
                 if let screen = ScreenChangeManager.Screen(rawValue: val) {
-                    print("New screen view: \(screen.description)")
                     g_screen_manager.currentScreen = screen
-                } else {
-                    print("ERROR: unable to determine new screen view")
                 }
             } else if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Trickler_Cal_Data_UUID) {
-                print("Trickler Calibration Data")
-                print("Size of data: \(dd.count)")
-                print("data as array values: \(String(describing: Array(dd)))")
+                //print("Trickler Calibration Data")
+                //print("Size of data: \(dd.count)")
+                //print("data as array values: \(String(describing: Array(dd)))")
                 let count = Array(dd[0...3]).withUnsafeBytes { $0.load(as: Int32.self) }
                 let avg = Array(dd[4...7]).withUnsafeBytes { $0.load(as: Float32.self) }
                 let speed = Array(dd[8...11]).withUnsafeBytes { $0.load(as: Int32.self) }
-                print("Sample Count: \(count)")
-                print("Avgerage: \(avg)")
-                print("Speed: \(speed)")
+                //print("Sample Count: \(count)")
+                //print("Avgerage: \(avg)")
+                //print("Speed: \(speed)")
                 let data = TricklerCalDataManager.TricklerCalData(
                     count: count,
                     average: avg,
                     speed: speed)
                 g_trickler_cal_data_manager.currentData = data
             } else if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Config_Data_UUID) {
-                print("Config Data Charactaristic")
-                print("Size of data: \(dd.count)")
-                print("data as array values: \(String(describing: Array(dd)))")
+                //print("Config Data Charactaristic")
+                //print("Size of data: \(dd.count)")
+                //print("data as array values: \(String(describing: Array(dd)))")
                 let _data: Data = dd
                 g_config_data_manager.currentConfigData = _data.withUnsafeBytes { $0.load(as: ConfigDataManager.ConfigData.self) }
+/*
                 print("Config Version: \(g_config_data_manager.currentConfigData.config_version)")
                 print("Bump Threshold: \(g_config_data_manager.currentConfigData.bump_threshold)")
                 print("Decel Limit: \(g_config_data_manager.currentConfigData.decel_limit)")
@@ -446,11 +433,11 @@ extension  ViewController: CBPeripheralDelegate {
                 print("Grain Tolerance: \(g_config_data_manager.currentConfigData.gn_tolerance)")
                 print("Trickler Speed: \(g_config_data_manager.currentConfigData.trickler_speed)")
                 print("Preset Index: \(g_config_data_manager.currentConfigData.preset)")
-                                
+*/
             } else if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Preset_Data_UUID) {
-                print("Preset Data Charactaristic")
-                print("Size of data: \(dd.count)")
-                print("data as array values: \(String(describing: Array(dd)))")
+                //print("Preset Data Charactaristic")
+                //print("Size of data: \(dd.count)")
+                //print("data as array values: \(String(describing: Array(dd)))")
                 let preset_version = Array(dd[0...3]).withUnsafeBytes { $0.load(as: Int32.self) }
                 let preset_number = Array(dd[4...7]).withUnsafeBytes { $0.load(as: Int32.self) }
                 let preset_charge_weight = Array(dd[8...11]).withUnsafeBytes { $0.load(as: Float32.self) }
@@ -459,6 +446,7 @@ extension  ViewController: CBPeripheralDelegate {
                 let preset_name = String(cString: Array(dd[20...36]))
                 let bullet_name = String(cString: Array(dd[37...53]))
                 let brass_name = String(cString: Array(dd[54...70]))
+/*
                 print("Preset Version: \(preset_version)")
                 print("Preset Number: \(preset_number)")
                 print("Preset Chg weight: \(preset_charge_weight)")
@@ -467,6 +455,7 @@ extension  ViewController: CBPeripheralDelegate {
                 print("Preset Name: '\(preset_name)'")
                 print("Bullet Name: '\(bullet_name)'")
                 print("Brass Name: '\(brass_name)'")
+ */
                 let preset = PresetManager.PresetData(
                     preset_version: preset_version,
                     preset_number: preset_number,
@@ -485,20 +474,17 @@ extension  ViewController: CBPeripheralDelegate {
                 //print("preset_index: \(preset_index)")
                 let preset_empty = dd[4...4].withUnsafeBytes { $0.load(as: Bool.self) }
                 var preset_name: String
-                if preset_empty {
-                    preset_name = "EMPTY"
-                } else {
-                    preset_name = String(cString: Array(dd[5...23]))
-                }
+                if preset_empty { preset_name = "EMPTY"
+                } else { preset_name = String(cString: Array(dd[5...23])) }
                 if g_preset_manager.isLoading {
-                    print("Add '\(preset_name)' to preset list, index: \(preset_index)")
+                    //print("Add '\(preset_name)' to preset list, index: \(preset_index)")
                     g_preset_manager.addListItem(preset_name)
                     let progress: Float = (Float(preset_index) + 5.0)/55.0
                     progressView.progress = progress
                     let next_index = preset_index + 1
                     if g_preset_manager.loaded {
-                        print("Loaded \(g_preset_manager.count) preset list items.")
-                        print("Start loading powder data ...")
+                        //print("Loaded \(g_preset_manager.count) preset list items.")
+                        //print("Start loading powder data ...")
                         BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.POWDER_NAME_BY_INDEX, parameter: Int8(1))
                     } else {
                         let _data: [Int8] = [BLE_COMMANDS.PRESET_NAME_BY_INDEX, Int8(next_index)]
@@ -506,24 +492,26 @@ extension  ViewController: CBPeripheralDelegate {
                         BlePeripheral.connectedPeripheral?.writeValue(outgoingData as Data, for: BlePeripheral.connectedParameterCommandChar!, type: CBCharacteristicWriteType.withResponse)
                     }
                 } else {
-                    print("Update preset at \(preset_index) with '\(preset_name)")
+                    //print("Update preset at \(preset_index) with '\(preset_name)")
                     g_preset_manager.updateListItem(preset_name, index: Int(preset_index))
                 }
 
             } else if characteristic.uuid.isEqual(CBUUIDs.BLE_Characteristic_Powder_Data_UUID) {
-                print("Processing Powder Data charactaristic")
-                print("Size of data: \(dd.count)")
-                print("data as array values: \(String(describing: Array(dd)))")
+                //print("Processing Powder Data charactaristic")
+                //print("Size of data: \(dd.count)")
+                //print("data as array values: \(String(describing: Array(dd)))")
                 let powder_version = Array(dd[0...3]).withUnsafeBytes { $0.load(as: Int32.self) }
                 let powder_number = Array(dd[4...7]).withUnsafeBytes { $0.load(as: Int32.self) }
                 let powder_factor = Array(dd[8...11]).withUnsafeBytes { $0.load(as: Float32.self) }
                 let powder_name = String(cString: Array(dd[12...28]))
                 let powder_lot = String(cString: Array(dd[29...45]))
+/*
                 print("Powder Version: \(powder_version)")
                 print("Powder Number: \(powder_number)")
                 print("Powder Factor: '\(powder_factor)'")
                 print("Powder Name: '\(powder_name)'")
                 print("Powder Lot: \(powder_lot)")
+ */
                 let powder = PowderManager.PowderData(
                     powder_version: powder_version,
                     powder_number: powder_number,
@@ -541,20 +529,17 @@ extension  ViewController: CBPeripheralDelegate {
                 //print("preset_index: \(preset_index)")
                 let powder_empty = dd[4...4].withUnsafeBytes { $0.load(as: Bool.self) }
                 var powder_name: String
-                if powder_empty {
-                    powder_name = "EMPTY"
-                } else {
-                    powder_name = String(cString: Array(dd[5...23]))
-                }
+                if powder_empty { powder_name = "EMPTY"
+                } else { powder_name = String(cString: Array(dd[5...23])) }
                 if g_powder_manager.isLoading {
-                    print("Add '\(powder_name)' to powder list at index \(powder_index)")
+                    //print("Add '\(powder_name)' to powder list at index \(powder_index)")
                     g_powder_manager.addListItem(powder_name)
                     let progress: Float = Float(30 + powder_index)/55.0
                     progressView.progress = progress
                     let next_index = powder_index + 1
                     if g_powder_manager.loaded {
-                        print("Loaded \(g_powder_manager.count) powder names.")
-                        print("All data loaded, setup the screen.")
+                        //print("Loaded \(g_powder_manager.count) powder names.")
+                        //print("All data loaded, setup the screen.")
                         title = "PowderThrow: Ready."
                         spinnerView.stopAnimating()
                         progressView.isHidden = true
@@ -562,9 +547,7 @@ extension  ViewController: CBPeripheralDelegate {
                         presetNameLabel.isHidden = false
                         powderNameLabel.isHidden = false
                         targetWeightLabel.isHidden = false
-                        //runButton.isEnabled = true
                         runButton.isHidden = false
-                        //runButton.layer.backgroundColor = UIColor.systemBlue.cgColor
                         presetsButton.isEnabled = true
                         presetsButton.layer.backgroundColor = UIColor.systemBlue.cgColor
                         presetsButton.isHidden = false
@@ -578,16 +561,13 @@ extension  ViewController: CBPeripheralDelegate {
                         BlePeripheral.connectedPeripheral?.writeValue(outgoingData as Data, for: BlePeripheral.connectedParameterCommandChar!, type: CBCharacteristicWriteType.withResponse)
                     }
                 } else {
-                    print("update powder at \(powder_index) with '\(powder_name)")
+                    //print("update powder at \(powder_index) with '\(powder_name)")
                     g_powder_manager.updateListItem(powder_name, index: Int(powder_index))
                 }
             } else {
-                print("ERROR *************************************************")
-                print("Could not unwrap charactaristic data on update.")
                 print("Unknown characteristic UUID \(characteristic.uuid)")
             }
         } else {
-            print("ERROR *************************************************")
             print("Could not unwrap charactaristic \(characteristic.uuid): No Data")
         }
     }
@@ -615,10 +595,10 @@ extension  ViewController: CBPeripheralDelegate {
             print("Function: \(#function),Line: \(#line)")
             print("Problem changing notification state:\(String(describing: error?.localizedDescription))")
         } else {
-            print("Characteristic: \(characteristic.uuid) value subscribed.")
+            //print("Characteristic: \(characteristic.uuid) value subscribed.")
         }
         if (characteristic.isNotifying) {
-            print ("Notification has begun for Characteristic: \(characteristic.uuid).")
+            //print ("Notification has begun for Characteristic: \(characteristic.uuid).")
         }
     }
 }

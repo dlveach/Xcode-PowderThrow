@@ -187,7 +187,7 @@ class  PowdersViewController: UIViewController, UITextFieldDelegate, PowderChang
     // MARK: - Save Powder Data
 
     func savePowderData() {
-        print("savePowderData()")
+        //print("savePowderData()")
         if anyError() { return }
         
         var new_powder = PowderManager.PowderData()
@@ -325,7 +325,7 @@ extension PowdersViewController: UIPickerViewDelegate {
     }
 
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        print("---> Powder Picker, picker row: \(row), Manager picker list data name:  \(g_powder_manager.getListItemAt(row)), Powder number: \(row+1), Manager's current powder number: \(g_powder_manager.currentPowder.powder_number), Manager's powder name: \(g_powder_manager.currentPowder.powder_name)")
+        //print("---> Powder Picker, picker row: \(row), Manager picker list data name:  \(g_powder_manager.getListItemAt(row)), Powder number: \(row+1), Manager's current powder number: \(g_powder_manager.currentPowder.powder_number), Manager's powder name: \(g_powder_manager.currentPowder.powder_name)")
 
         if row + 1 != g_powder_manager.currentPowder.powder_number {
             BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.POWDER_DATA_BY_INDEX, parameter: Int8(row+1))

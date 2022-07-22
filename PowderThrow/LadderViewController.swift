@@ -141,7 +141,7 @@ class LadderViewController: UIViewController, UITextFieldDelegate, ScreenChangeL
     
     @IBAction func clearButtonAction(_ sender: Any) {
 
-        print("TODO: confirm dialog ??")
+        print("TODO: confirm dialog on clear ??")
 
         var str = String(format: "%7.2f", g_preset_manager.currentPreset.charge_weight)
         str = str.replacingOccurrences(of: "^0+", with: "", options: .regularExpression)
@@ -169,8 +169,8 @@ class LadderViewController: UIViewController, UITextFieldDelegate, ScreenChangeL
         _data.append(Data(bytes: &g_ladder_data.start_weight, count: MemoryLayout<Float32>.stride))
         _data.append(Data(bytes: &g_ladder_data.step_interval, count: MemoryLayout<Float32>.stride))
 
-        print("bytes to send: \(_data.count)")
-        print("_data: \(String(describing: Array(_data)))")
+        //print("bytes to send: \(_data.count)")
+        //print("_data: \(String(describing: Array(_data)))")
 
         BlePeripheral().writeLadderData(outgoingData: _data)
     }

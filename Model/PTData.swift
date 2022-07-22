@@ -258,7 +258,7 @@ class PowderManager {
 
     // Invoke the "changed" method on all listeners
     func invoke() {
-        print("PowderManager invoke()")
+        //print("PowderManager invoke()")
         for listener in listeners {
             listener.powderChanged(to: _currentPowder)
         }
@@ -513,7 +513,7 @@ class ConfigDataManager {
     }
 
     func BLEWriteConfigData() {
-        print("BLEWriteConfigData()")
+        //print("BLEWriteConfigData()")
         // Serialize config data into bytes to send over BLE.
         let preset_number_data = Data(bytes: &_current.preset, count: MemoryLayout<Int32>.stride)
         let fscalep_data = Data(bytes: &_current.fscaleP, count: MemoryLayout<Float32>.stride)
@@ -533,8 +533,8 @@ class ConfigDataManager {
         _data.append(trickler_speed_data)
         _data.append(config_version_data)
 
-        print("bytes to send: \(_data.count)")
-        print("_data: \(String(describing: Array(_data)))")
+        //print("bytes to send: \(_data.count)")
+        //print("_data: \(String(describing: Array(_data)))")
         
         BlePeripheral().writeConfigData(outgoingData: _data)
     }

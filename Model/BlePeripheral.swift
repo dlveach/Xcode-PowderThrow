@@ -62,26 +62,26 @@ class BlePeripheral {
     }
     
     func writePresetData(outgoingData: Data) {
-        print("BlePeripheral::writePresetData()")
-        print("outgoingData.count: \(outgoingData.count)")
+        //print("BlePeripheral::writePresetData()")
+        //print("outgoingData.count: \(outgoingData.count)")
         BlePeripheral.connectedPeripheral?.writeValue(outgoingData, for: BlePeripheral.connectedPresetDataChar!, type: CBCharacteristicWriteType.withResponse)
     }
 
     func writePowderData(outgoingData: Data) {
-        print("BlePeripheral::writePowderData()")
-        print("outgoingData.count: \(outgoingData.count)")
+        //print("BlePeripheral::writePowderData()")
+        //print("outgoingData.count: \(outgoingData.count)")
         BlePeripheral.connectedPeripheral?.writeValue(outgoingData, for: BlePeripheral.connectedPowderDataChar!, type: CBCharacteristicWriteType.withResponse)
     }
     
     func writeConfigData(outgoingData: Data) {
-        print("BlePeripheral::writeConfigData()")
-        print("outgoingData.count: \(outgoingData.count)")
+        //print("BlePeripheral::writeConfigData()")
+        //print("outgoingData.count: \(outgoingData.count)")
         BlePeripheral.connectedPeripheral?.writeValue(outgoingData, for: BlePeripheral.connectedConfigDataChar!, type: CBCharacteristicWriteType.withResponse)
     }
     
     func writeLadderData(outgoingData: Data) {
-        print("BlePeripheral::writeLadderData()")
-        print("outgoingData.count: \(outgoingData.count)")
+        //print("BlePeripheral::writeLadderData()")
+        //print("outgoingData.count: \(outgoingData.count)")
         BlePeripheral.connectedPeripheral?.writeValue(outgoingData, for: BlePeripheral.connectedLadderDataChar!, type: CBCharacteristicWriteType.withResponse)
     }
 }
