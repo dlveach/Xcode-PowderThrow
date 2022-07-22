@@ -284,120 +284,80 @@ class  PresetsViewController: UIViewController, UITextFieldDelegate, PresetChang
 
     // MARK: - Form Validation
     
-    @IBAction func presetNameFieldChanged(_ sender: Any) {
-        if let char_count = presetNameTextField.text?.count {
-            if char_count == 0 || char_count > MAX_NAME_LEN {
-                setTextFieldError(presetNameLabel)
-            } else {
-                let str = presetNameTextField.text?.uppercased()
-                presetNameTextField.text = str
-                let set = CharacterSet(charactersIn: str!)
-                var testSet = CharacterSet.uppercaseLetters
-                testSet = testSet.union(CharacterSet.decimalDigits)
-                testSet = testSet.union(CharacterSet([" ",".","-"]))
-                if !testSet.isSuperset(of: set) {
-                    setTextFieldError(presetNameLabel)
-                } else {
-                    clearTextFieldError(presetNameLabel)
-                }
-            }
-        } else {
-            setTextFieldError(presetNameLabel)
+    @IBAction func presetNameFieldEndEdit(_ sender: Any) {
+        var err = true
+        if presetNameTextField.text!.count > 0 || presetNameTextField.text!.count <= MAX_NAME_LEN {
+            let str = presetNameTextField.text!.trimmingCharacters(in: .whitespacesAndNewlines)
+            let set = CharacterSet(charactersIn: str)
+            var testSet = CharacterSet.letters
+            testSet = testSet.union(CharacterSet.decimalDigits)
+            testSet = testSet.union(CharacterSet([" ",".","-"]))
+            if testSet.isSuperset(of: set) { err = false }
         }
+        if err { setTextFieldError(presetNameLabel)
+        } else { clearTextFieldError(presetNameLabel) }
         _ = anyError()
     }
 
-    @IBAction func chargeWtFieldChanged(_ sender: Any) {
-        if let char_count = chargeWtTextField.text?.count {
-            if char_count == 0 || char_count > 6 {
-                setTextFieldError(chargeWtLabel)
-            } else {
-                let str = chargeWtTextField.text
-                let set = CharacterSet(charactersIn: str!)
-                let testSet = CharacterSet.decimalDigits.union(CharacterSet(Array(["."])))
-                let regexp = try! NSRegularExpression(pattern: "[0-9]{1,3}\\.[0-9]{1,2}", options: [])
-                let sourceRange = NSRange(str!.startIndex..<str!.endIndex, in: str!)
-                let result = regexp.matches(in: str!,options: [],range: sourceRange)
-                if result.count > 0 && testSet.isSuperset(of: set) {
-                    clearTextFieldError(chargeWtLabel)
-                } else {
-                    setTextFieldError(chargeWtLabel)
-                }
-            }
-        } else {
-            setTextFieldError(chargeWtLabel)
+    @IBAction func chargeWtFieldEndEdit(_ sender: Any) {
+        var err = true
+        if chargeWtTextField.text!.count > 0 || chargeWtTextField.text!.count <= MAX_NAME_LEN {
+            let str = chargeWtTextField.text!.trimmingCharacters(in: .whitespacesAndNewlines)
+            let set = CharacterSet(charactersIn: str)
+            let testSet = CharacterSet.decimalDigits.union(CharacterSet(Array(["."])))
+            let regexp = try! NSRegularExpression(pattern: "[0-9]{1,3}\\.[0-9]{1,2}", options: [])
+            let sourceRange = NSRange(str.startIndex..<str.endIndex, in: str)
+            let result = regexp.matches(in: str,options: [],range: sourceRange)
+            if result.count > 0 && testSet.isSuperset(of: set) { err = false }
         }
+        if err { setTextFieldError(chargeWtLabel)
+        } else { clearTextFieldError(chargeWtLabel) }
         _ = anyError()
     }
-    
-    @IBAction func bulletNameFieldChanged(_ sender: Any) {
-        if let char_count = bulletNameTextField.text?.count {
-            if char_count == 0 || char_count > MAX_NAME_LEN {
-                setTextFieldError(bulletNameLabel)
-            } else {
-                let str = bulletNameTextField.text?.uppercased()
-                bulletNameTextField.text = str
-                let set = CharacterSet(charactersIn: str!)
-                var testSet = CharacterSet.uppercaseLetters
-                testSet = testSet.union(CharacterSet.decimalDigits)
-                testSet = testSet.union(CharacterSet([" ",".","-"]))
-                if testSet.isSuperset(of: set) {
-                    clearTextFieldError(bulletNameLabel)
-                } else {
-                    setTextFieldError(bulletNameLabel)
-                }
-            }
-        } else {
-            setTextFieldError(bulletNameLabel)
+
+    @IBAction func bulletNameFieldEndEdit(_ sender: Any) {
+        var err = true
+        if bulletNameTextField.text!.count > 0 || bulletNameTextField.text!.count <= MAX_NAME_LEN {
+            let str = bulletNameTextField.text!.trimmingCharacters(in: .whitespacesAndNewlines)
+            let set = CharacterSet(charactersIn: str)
+            var testSet = CharacterSet.letters
+            testSet = testSet.union(CharacterSet.decimalDigits)
+            testSet = testSet.union(CharacterSet([" ",".","-"]))
+            if testSet.isSuperset(of: set) { err = false }
         }
+        if err { setTextFieldError((bulletNameLabel))
+        } else { clearTextFieldError((bulletNameLabel)) }
         _ = anyError()
     }
-    
-    @IBAction func bulletWtFieldChanged(_ sender: Any) {
-        if let char_count = bulletWtTextField.text?.count {
-            if char_count == 0 || char_count > 3 {
-                setTextFieldError(bulletWtLabel)
-            } else {
-                let str = bulletWtTextField.text
-                let set = CharacterSet(charactersIn: str!)
-                let testSet = CharacterSet.decimalDigits.union(CharacterSet(Array(["."])))
-                let regexp = try! NSRegularExpression(pattern: "[0-9]{2,3}", options: [])
-                let sourceRange = NSRange(str!.startIndex..<str!.endIndex, in: str!)
-                let result = regexp.matches(in: str!,options: [],range: sourceRange)
-                if result.count > 0 && testSet.isSuperset(of: set) {
-                    clearTextFieldError(bulletWtLabel)
-                } else {
-                    setTextFieldError(bulletWtLabel)
-                }
+
+    @IBAction func bulletWtFieldEndEdit(_ sender: Any) {
+        var err = true
+        if bulletWtTextField.text!.count > 0 || bulletWtTextField.text!.count <= 2 {
+            if let val = Int(bulletWtTextField.text ?? "0") {
+                if val > 1 && val < 1000 { err = false }
             }
-        } else {
-            setTextFieldError(bulletWtLabel)
         }
+        if err { setTextFieldError(bulletWtLabel)
+        } else { clearTextFieldError(bulletWtLabel) }
         _ = anyError()
     }
-    
-    @IBAction func brassNameFieldChanged(_ sender: Any) {
-        if let char_count = brassNameTextField.text?.count {
-            if char_count == 0 || char_count > MAX_NAME_LEN {
-                setTextFieldError(brassNameLabel)
-            } else {
-                let str = brassNameTextField.text?.uppercased()
-                brassNameTextField.text = str
-                let set = CharacterSet(charactersIn: str!)
-                if !CharacterSet.uppercaseLetters.isSuperset(of: set) {
-                    setTextFieldError(brassNameLabel)
-                } else {
-                    clearTextFieldError(brassNameLabel)
-                }
-            }
-        } else {
-            setTextFieldError(brassNameLabel)
+
+    @IBAction func brassNameFieldEndEdit(_ sender: Any) {
+        var err = true
+        if brassNameTextField.text!.count > 0 || brassNameTextField.text!.count <= MAX_NAME_LEN {
+            let str = brassNameTextField.text!.trimmingCharacters(in: .whitespacesAndNewlines)
+            let set = CharacterSet(charactersIn: str)
+            var testSet = CharacterSet.letters
+            testSet = testSet.union(CharacterSet.decimalDigits)
+            testSet = testSet.union(CharacterSet([" ",".","-"]))
+            if testSet.isSuperset(of: set) { err = false }
         }
+        if err { setTextFieldError((brassNameLabel))
+        } else { clearTextFieldError((brassNameLabel)) }
         _ = anyError()
     }
-        
+
     func anyError() -> Bool {
-
         //bullet name, wt and brass name required:
         //if presetNameLabel.layer.borderWidth > 0 || chargeWtLabel.layer.borderWidth > 0 || powderNameLabel.layer.borderWidth > 0 || bulletNameLabel.layer.borderWidth > 0 || bulletWtLabel.layer.borderWidth > 0 || brassNameLabel.layer.borderWidth > 0 || presetNameTextField.text?.count == 0 || chargeWtTextField.text?.count == 0 || PowderNameTextField.text?.count == 0 || bulletNameTextField.text?.count == 0 || bulletWtTextField.text?.count == 0 || brassNameTextField.text?.count == 0
 

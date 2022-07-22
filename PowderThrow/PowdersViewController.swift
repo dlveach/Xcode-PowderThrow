@@ -224,72 +224,49 @@ class  PowdersViewController: UIViewController, UITextFieldDelegate, PowderChang
     
     // MARK: - Form Validation
     
-    @IBAction func powderNameChanged(_ sender: Any) {
-        if let char_count = powderNameField.text?.count {
-            if char_count == 0 || char_count > MAX_NAME_LEN {
-                setTextFieldError(powderNameLabel)
-            } else {
-                let str = powderNameField.text?.uppercased()
-                powderNameField.text = str
-                let set = CharacterSet(charactersIn: str!)
-                var testSet = CharacterSet.uppercaseLetters
-                testSet = testSet.union(CharacterSet.decimalDigits)
-                testSet = testSet.union(CharacterSet([" ",".","-"]))
-                if !testSet.isSuperset(of: set) {
-                    setTextFieldError(powderNameLabel)
-                } else {
-                    clearTextFieldError(powderNameLabel)
-                }
-            }
-        } else {
-            setTextFieldError(powderNameLabel)
+    @IBAction func powderNameFieldEndEdit(_ sender: Any) {
+        var err = true
+        if powderNameField.text!.count > 0 || powderNameField.text!.count <= MAX_NAME_LEN {
+            let str = powderNameField.text!.trimmingCharacters(in: .whitespacesAndNewlines)
+            let set = CharacterSet(charactersIn: str)
+            var testSet = CharacterSet.letters
+            testSet = testSet.union(CharacterSet.decimalDigits)
+            testSet = testSet.union(CharacterSet([" ",".","-"]))
+            if testSet.isSuperset(of: set) { err = false }
         }
+        if err { setTextFieldError(powderNameLabel)
+        } else { clearTextFieldError(powderNameLabel) }
         _ = anyError()
     }
 
-    @IBAction func powderFactorChanged(_ sender: Any) {
-        if let char_count = powderFactorField.text?.count {
-            if char_count == 0 || char_count > 7 {
-                setTextFieldError(powderFactorLabel)
-            } else {
-                let str = powderFactorField.text
-                let set = CharacterSet(charactersIn: str!)
-                let testSet = CharacterSet.decimalDigits.union(CharacterSet(Array(["."])))
-                let regexp = try! NSRegularExpression(pattern: "[0]\\.[0-9]{2,5}", options: [])
-                let sourceRange = NSRange(str!.startIndex..<str!.endIndex, in: str!)
-                let result = regexp.matches(in: str!,options: [],range: sourceRange)
-                if result.count > 0 && testSet.isSuperset(of: set) {
-                    clearTextFieldError(powderFactorLabel)
-                } else {
-                    setTextFieldError(powderFactorLabel)
-                }
-            }
-        } else {
-            setTextFieldError(powderFactorLabel)
+    @IBAction func powderFactorFieldEndEdit(_ sender: Any) {
+        var err = true
+        if powderFactorField.text!.count > 0 || powderFactorField.text!.count <= MAX_NAME_LEN {
+            let str = powderFactorField.text!.trimmingCharacters(in: .whitespacesAndNewlines)
+            let set = CharacterSet(charactersIn: str)
+            let testSet = CharacterSet.decimalDigits.union(CharacterSet(Array(["."])))
+            let regexp = try! NSRegularExpression(pattern: "[0]\\.[0-9]{2,5}", options: [])
+            let sourceRange = NSRange(str.startIndex..<str.endIndex, in: str)
+            let result = regexp.matches(in: str,options: [],range: sourceRange)
+            if result.count > 0 && testSet.isSuperset(of: set) { err = false }
         }
+        if err { setTextFieldError(powderFactorLabel)
+        } else { clearTextFieldError(powderFactorLabel) }
         _ = anyError()
     }
 
-    @IBAction func powderLotChanged(_ sender: Any) {
-        if let char_count = powderLotField.text?.count {
-            if char_count == 0 || char_count > MAX_NAME_LEN {
-                setTextFieldError(powderLotLabel)
-            } else {
-                let str = powderLotField.text?.uppercased()
-                powderLotField.text = str
-                let set = CharacterSet(charactersIn: str!)
-                var testSet = CharacterSet.uppercaseLetters
-                testSet = testSet.union(CharacterSet.decimalDigits)
-                testSet = testSet.union(CharacterSet([" ",".","-"]))
-                if !testSet.isSuperset(of: set) {
-                    setTextFieldError(powderLotLabel)
-                } else {
-                    clearTextFieldError(powderLotLabel)
-                }
-            }
-        } else {
-            setTextFieldError(powderLotLabel)
+    @IBAction func powderLotFieldEndEdit(_ sender: Any) {
+        var err = true
+        if powderLotField.text!.count > 0 || powderLotField.text!.count <= MAX_NAME_LEN {
+            let str = powderLotField.text!.trimmingCharacters(in: .whitespacesAndNewlines)
+            let set = CharacterSet(charactersIn: str)
+            var testSet = CharacterSet.letters
+            testSet = testSet.union(CharacterSet.decimalDigits)
+            testSet = testSet.union(CharacterSet([" ",".","-"]))
+            if testSet.isSuperset(of: set) { err = false }
         }
+        if err { setTextFieldError(powderLotLabel)
+        } else { clearTextFieldError(powderLotLabel) }
         _ = anyError()
     }
 

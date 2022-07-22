@@ -728,7 +728,7 @@
             </objects>
             <point key="canvasLocation" x="1941.5999999999999" y="-104.7976011994003"/>
         </scene>
-        <!--Ladder View Controller-->
+        <!--Ladder Setup-->
         <scene sceneID="kfN-UL-xMl">
             <objects>
                 <viewController storyboardIdentifier="LadderViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="dq9-v4-b0k" customClass="LadderViewController" customModule="PowderThrow" customModuleProvider="target" sceneMemberID="viewController">
@@ -854,7 +854,7 @@
                             <constraint firstItem="99f-oW-gLo" firstAttribute="trailing" secondItem="XM5-VB-AdK" secondAttribute="trailing" id="xoB-Qa-vt5"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" largeTitleDisplayMode="always" id="Rim-5D-9kd"/>
+                    <navigationItem key="navigationItem" title="Ladder Setup" largeTitleDisplayMode="always" id="Rim-5D-9kd"/>
                     <connections>
                         <outlet property="clearButton" destination="Ovm-e4-bv9" id="s16-ny-FRU"/>
                         <outlet property="grainsPerStepField" destination="XM5-VB-AdK" id="U9r-VY-HMx"/>
@@ -911,7 +911,7 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                 <textInputTraits key="textInputTraits" returnKeyType="done" enablesReturnKeyAutomatically="YES"/>
                                 <connections>
-                                    <action selector="presetNameFieldChanged:" destination="kk6-mZ-nhu" eventType="editingChanged" id="SFy-1q-W6Q"/>
+                                    <action selector="presetNameFieldEndEdit:" destination="kk6-mZ-nhu" eventType="editingDidEnd" id="L4K-cN-QQl"/>
                                 </connections>
                             </textField>
                             <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="bullet name" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="wBQ-n5-NbO" userLabel="Bullet Name Field">
@@ -920,7 +920,7 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                 <textInputTraits key="textInputTraits" returnKeyType="done" enablesReturnKeyAutomatically="YES"/>
                                 <connections>
-                                    <action selector="bulletNameFieldChanged:" destination="kk6-mZ-nhu" eventType="editingChanged" id="Uhp-as-OZl"/>
+                                    <action selector="bulletNameFieldEndEdit:" destination="kk6-mZ-nhu" eventType="editingDidEnd" id="mhe-wt-Y3P"/>
                                 </connections>
                             </textField>
                             <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="brass name" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="AyA-Ya-wNC" userLabel="Brass Name Field">
@@ -929,7 +929,7 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                 <textInputTraits key="textInputTraits" returnKeyType="done" enablesReturnKeyAutomatically="YES"/>
                                 <connections>
-                                    <action selector="brassNameFieldChanged:" destination="kk6-mZ-nhu" eventType="editingChanged" id="l2E-rF-xjS"/>
+                                    <action selector="brassNameFieldEndEdit:" destination="kk6-mZ-nhu" eventType="editingDidEnd" id="OkQ-zq-mOJ"/>
                                 </connections>
                             </textField>
                             <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="powder name" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Lp7-qg-F5K" userLabel="Powder Name Field">
@@ -947,7 +947,7 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                 <textInputTraits key="textInputTraits" keyboardType="numbersAndPunctuation" returnKeyType="done" enablesReturnKeyAutomatically="YES"/>
                                 <connections>
-                                    <action selector="chargeWtFieldChanged:" destination="kk6-mZ-nhu" eventType="editingChanged" id="mfw-bA-Y9s"/>
+                                    <action selector="chargeWtFieldEndEdit:" destination="kk6-mZ-nhu" eventType="editingDidEnd" id="wZz-ZA-KvA"/>
                                 </connections>
                             </textField>
                             <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="000" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="v7F-50-0oy" userLabel="Bullet Wt Field">
@@ -956,10 +956,10 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                 <textInputTraits key="textInputTraits" keyboardType="phonePad" returnKeyType="done" enablesReturnKeyAutomatically="YES"/>
                                 <connections>
-                                    <action selector="bulletWtFieldChanged:" destination="kk6-mZ-nhu" eventType="editingChanged" id="Mc0-XS-wYP"/>
+                                    <action selector="bulletWtFieldEndEdit:" destination="kk6-mZ-nhu" eventType="editingDidEnd" id="ixv-dY-w7q"/>
                                 </connections>
                             </textField>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Preset:" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ATc-cS-ovk" userLabel="Preset Name Label">
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Preset Name:" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ATc-cS-ovk" userLabel="Preset Name Label">
                                 <rect key="frame" x="16" y="138" width="133" height="34"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -1115,7 +1115,7 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                 <textInputTraits key="textInputTraits" returnKeyType="done" enablesReturnKeyAutomatically="YES"/>
                                 <connections>
-                                    <action selector="powderNameChanged:" destination="srJ-Ir-bMB" eventType="editingChanged" id="aMB-Y0-cof"/>
+                                    <action selector="powderNameFieldEndEdit:" destination="srJ-Ir-bMB" eventType="editingDidEnd" id="ulN-iO-vfW"/>
                                 </connections>
                             </textField>
                             <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="powder factor" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="3ht-BY-NhJ" userLabel="Powder Factor Field">
@@ -1124,7 +1124,7 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                 <textInputTraits key="textInputTraits" returnKeyType="done" enablesReturnKeyAutomatically="YES"/>
                                 <connections>
-                                    <action selector="powderFactorChanged:" destination="srJ-Ir-bMB" eventType="editingChanged" id="EmV-GI-XiD"/>
+                                    <action selector="powderFactorFieldEndEdit:" destination="srJ-Ir-bMB" eventType="editingDidEnd" id="tSM-bn-tK9"/>
                                 </connections>
                             </textField>
                             <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="powder lot" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="zVz-oC-Kkt" userLabel="Lot Number Field">
@@ -1133,10 +1133,10 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                 <textInputTraits key="textInputTraits" returnKeyType="done" enablesReturnKeyAutomatically="YES"/>
                                 <connections>
-                                    <action selector="powderLotChanged:" destination="srJ-Ir-bMB" eventType="editingChanged" id="eLO-IN-i3y"/>
+                                    <action selector="powderLotFieldEndEdit:" destination="srJ-Ir-bMB" eventType="editingDidEnd" id="sd5-vr-AhP"/>
                                 </connections>
                             </textField>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Powder:" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VVs-ws-Lat" userLabel="Powder Name Label">
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Powder Name:" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VVs-ws-Lat" userLabel="Powder Name Label">
                                 <rect key="frame" x="16" y="159" width="133" height="34"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>

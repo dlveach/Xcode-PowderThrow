@@ -191,11 +191,11 @@ class  SettingsViewController: UIViewController, UITextFieldDelegate, ConfigData
             
             //TODO: !!! peripheral is not reading this until **after** the calibration completes.
             //          Need to unblock on the peripheral in the calibration loop somehow.
-            
             //TODO: !!! Central is also loosing connection with peripheral during calibration.
-            //          This is bad.
-            
-            //HACK: using writeWithoutResponse seems to be avoiding the issue
+            //
+            //          Both issues are likely caused by timing on the peripheral during calibration
+            //          not allowing the BLE processing to handle the characteristic response.
+            //HACK: For both issues, using writeWithoutResponse seems to be a workaround
             
             hideCalibration()  
             _trickler_calibration_running = false
@@ -272,6 +272,7 @@ class  SettingsViewController: UIViewController, UITextFieldDelegate, ConfigData
     func clearEditing(reset: Bool) {
         _isEditing = false
         editSaveButton.setTitle("Edit", for: UIControl.State.normal)
+        editSaveButton.isHidden = false
         cancelButton.isHidden = true
         calibrateTricklerButton.isHidden = false
         decelThreshold.backgroundColor = UIColor.black
@@ -307,6 +308,12 @@ class  SettingsViewController: UIViewController, UITextFieldDelegate, ConfigData
             decelLimit.text = String(format: "%d", g_config_data_manager.currentConfigData.decel_limit)
             tricklerSpeed.text = String(format: "%d", g_config_data_manager.currentConfigData.trickler_speed)
         }
+        clearTextFieldError(decelLimitLabel)
+        clearTextFieldError(bumpThresholdLabel)
+        clearTextFieldError(toleranceLabel)
+        clearTextFieldError(FScalePLabel)
+        clearTextFieldError(decelLimitLabel)
+        clearTextFieldError(tricklerSpeedLabel)
     }
     
     // MARK: Save config data
@@ -314,6 +321,8 @@ class  SettingsViewController: UIViewController, UITextFieldDelegate, ConfigData
     func saveConfigData() {
         print("savePresetData()")
         if anyError() { return }
+        
+        //TODO: put form field validations in sep fn so can be called in save action?
         
         var new_config = ConfigDataManager.ConfigData()
         new_config.config_version = g_config_data_manager.currentConfigData.config_version
@@ -363,41 +372,119 @@ class  SettingsViewController: UIViewController, UITextFieldDelegate, ConfigData
     // MARK: - Form Validation
 
     @IBAction func decelThresholdEndEdit(_ sender: Any) {
-    }
-    @IBAction func bumpThresholdEndEdit(_ sender: Any) {
-        print("bumpThreshold end edit validation")
-        if let char_count = bumpThreshold.text?.count {
-            if char_count != 4 {
-                setTextFieldError(bumpThresholdLabel)
-            } else {
-                let str = bumpThreshold.text
-                let set = CharacterSet(charactersIn: str!)
+        var err = true
+        if decelThreshold.text!.count > 0 || decelThreshold.text!.count <= 4 {
+            var str = decelThreshold.text!.trimmingCharacters(in: .whitespacesAndNewlines)
+            if let val = Float(str) {
+                str = String(format: "%04.2f", val)
+                str = str.replacingOccurrences(of: "^00+", with: "0", options: .regularExpression)
+                let set = CharacterSet(charactersIn: str)
                 let testSet = CharacterSet.decimalDigits.union(CharacterSet(Array(["."])))
-                let regexp = try! NSRegularExpression(pattern: "0\\.[0-9]{2}", options: [])
-                let sourceRange = NSRange(str!.startIndex..<str!.endIndex, in: str!)
-                let result = regexp.matches(in: str!,options: [],range: sourceRange)
-                if result.count > 0 && testSet.isSuperset(of: set) {
-                    clearTextFieldError(bumpThresholdLabel)
-                } else {
-                    setTextFieldError(bumpThresholdLabel)
+                let regexp = try! NSRegularExpression(pattern: "^[0-1]\\.[0-9]{2}", options: [])
+                let sourceRange = NSRange(str.startIndex..<str.endIndex, in: str)
+                let result = regexp.matches(in: str,options: [],range: sourceRange)
+                if result.count > 0 && testSet.isSuperset(of: set) && val > 0.5 && val <= 1.5 {
+                    err = false
+                    decelThreshold.text = str
                 }
             }
-        } else {
-            setTextFieldError(bumpThresholdLabel)
         }
+        if err { setTextFieldError(decelThresholdLabel)
+        } else { clearTextFieldError(decelThresholdLabel) }
         _ = anyError()
     }
+    
+    @IBAction func bumpThresholdEndEdit(_ sender: Any) {
+        var err = true
+        if bumpThreshold.text!.count > 0 || bumpThreshold.text!.count <= 4 {
+            var str = bumpThreshold.text!.trimmingCharacters(in: .whitespacesAndNewlines)
+            if let val = Float(str) {
+                str = String(format: "%04.2f", val)
+                str = str.replacingOccurrences(of: "^00+", with: "0", options: .regularExpression)
+                let set = CharacterSet(charactersIn: str)
+                let testSet = CharacterSet.decimalDigits.union(CharacterSet(Array(["."])))
+                let regexp = try! NSRegularExpression(pattern: "^0\\.[0-9]{2}", options: [])
+                let sourceRange = NSRange(str.startIndex..<str.endIndex, in: str)
+                let result = regexp.matches(in: str,options: [],range: sourceRange)
+                if result.count > 0 && testSet.isSuperset(of: set) && val > 0.0 && val <= 0.1 {
+                    err = false
+                    bumpThreshold.text = str
+                }
+            }
+        }
+        if err { setTextFieldError(bumpThresholdLabel)
+        } else { clearTextFieldError(bumpThresholdLabel) }
+        _ = anyError()
+    }
+    
     @IBAction func toleranceEndEdit(_ sender: Any) {
-        print("toleranceEndEdit end edit validation")
+        var err = true
+        if tolerance.text!.count > 0 || tolerance.text!.count <= 4 {
+            var str = tolerance.text!.trimmingCharacters(in: .whitespacesAndNewlines)
+            if let val = Float(str) {
+                str = String(format: "%04.2f", val)
+                str = str.replacingOccurrences(of: "^00+", with: "0", options: .regularExpression)
+                let set = CharacterSet(charactersIn: str)
+                let testSet = CharacterSet.decimalDigits.union(CharacterSet(Array(["."])))
+                let regexp = try! NSRegularExpression(pattern: "^0\\.[0-1][0-9]", options: [])
+                let sourceRange = NSRange(str.startIndex..<str.endIndex, in: str)
+                let result = regexp.matches(in: str,options: [],range: sourceRange)
+                if result.count > 0 && testSet.isSuperset(of: set) && val > 0.0 && val <= 0.1 {
+                    err = false
+                    tolerance.text = str
+                }
+            }
+        }
+        if err { setTextFieldError(toleranceLabel)
+        } else { clearTextFieldError(toleranceLabel) }
+        _ = anyError()
     }
+    
     @IBAction func FScalePEndEdit(_ sender: Any) {
-        print("FScalePEndEdit end edit validation")
+        var err = true
+        if FScaleP.text!.count > 0 || FScaleP.text!.count <= 4 {
+            var str = FScaleP.text!.trimmingCharacters(in: .whitespacesAndNewlines)
+            if let val = Float(str) {
+                str = String(format: "%04.1f", val)
+                str = str.replacingOccurrences(of: "^00+", with: "0", options: .regularExpression)
+                let set = CharacterSet(charactersIn: str)
+                let testSet = CharacterSet.decimalDigits.union(CharacterSet(Array([".","-"])))
+                let regexp = try! NSRegularExpression(pattern: "^-?[0-9]{1,2}\\.[0-9]", options: [])
+                let sourceRange = NSRange(str.startIndex..<str.endIndex, in: str)
+                let result = regexp.matches(in: str,options: [],range: sourceRange)
+                if result.count > 0 && testSet.isSuperset(of: set) && val >= -10.0 && val <= 10.0 {
+                    err = false
+                    FScaleP.text = str
+                }
+            }
+        }
+        if err { setTextFieldError(FScalePLabel)
+        } else { clearTextFieldError(FScalePLabel) }
+        _ = anyError()
     }
+    
     @IBAction func decelLimitEndEdit(_ sender: Any) {
-        print("decelLimitEndEdit end edit validation")
+        var err = true
+        if decelLimit.text!.count > 0 || decelLimit.text!.count <= 4 {
+            if let val = Int(decelLimit.text ?? "0") {
+                if val >= 100 && val <= 1000 { err = false }
+            }
+        }
+        if err { setTextFieldError(decelThresholdLabel)
+        } else { clearTextFieldError(decelThresholdLabel) }
+        _ = anyError()
     }
+    
     @IBAction func tricklerSpeedEndEdit(_ sender: Any) {
-        print("tricklerSpeedEndEdit end edit validation")
+        var err = true
+        if tricklerSpeed.text!.count > 0 || tricklerSpeed.text!.count <= 4 {
+            if let val = Int(tricklerSpeed.text ?? "0") {
+                if val >= 100 && val <= 5000 { err = false }
+            }
+        }
+        if err { setTextFieldError(tricklerSpeedLabel)
+        } else { clearTextFieldError(tricklerSpeedLabel) }
+        _ = anyError()
     }
     
     func anyError() -> Bool {

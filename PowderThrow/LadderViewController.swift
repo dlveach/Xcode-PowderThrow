@@ -211,8 +211,6 @@ class LadderViewController: UIViewController, UITextFieldDelegate, ScreenChangeL
                     err = false
                     startGrainsField.text = str
                 }
-            } else {
-                print("not a float!!!")
             }
         }
         if err { setTextFieldError(startGrainsLabel)
@@ -223,7 +221,7 @@ class LadderViewController: UIViewController, UITextFieldDelegate, ScreenChangeL
     @IBAction func numberOfStepsFieldEndEdit(_ sender: Any) {
         var err = true
         if numberOfStepsField.text!.count > 0 || numberOfStepsField.text!.count <= 2 {
-            if let val = Int(numberOfStepsField.text ?? "") {
+            if let val = Int(numberOfStepsField.text ?? "0") {
                 if val > 1 && val <= 20 { err = false }
             }
         }
