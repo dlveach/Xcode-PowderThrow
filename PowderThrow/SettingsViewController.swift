@@ -113,9 +113,6 @@ class  SettingsViewController: UIViewController, UITextFieldDelegate, ConfigData
         cancelButton.isHidden = true
         editSaveButton.setTitle("Edit", for: UIControl.State.normal)
         clearEditing(reset: true)
-
-        // Set state on peripheral
-        BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SYSTEM_SET_STATE, parameter: Int8(RunDataManager.system_state.Settings.rawValue))
     }
     
     // MARK: - Data Listener callbacks

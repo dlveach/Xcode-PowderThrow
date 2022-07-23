@@ -39,7 +39,7 @@ class ScreenChangeManager {
     private var listeners: [ScreenChangeListener]
 
     enum Screen: Int32 {
-        case GoBack // maybe not gonna use this?
+        case GoBack // not gonna use this?
         case ViewController
         case RunThrowerViewController
         case SettingsViewController
@@ -155,7 +155,6 @@ class PresetManager {
     }
     
     func addListItem(_ name: String) {
-        //print("addListItem()")
         preset_name_list.append(name)
         count = preset_name_list.count
         if count == MAX_PRESETS {
@@ -165,7 +164,6 @@ class PresetManager {
     }
 
     func updateListItem(_ name: String, index: Int) {
-        //print("updateListItem() with name: \(name), index: \(index)")
         if isLoading { return }
         if index >= 0 && index < MAX_PRESETS {
             preset_name_list[index] = name
@@ -183,7 +181,6 @@ class PresetManager {
     }
 
     func BLEWritePresetData() {
-        print("BLEWritePresetData()")
         // Serialize preset data into bytes to send over BLE.
         let preset_version_data = Data(bytes: &_currentPresetData.preset_version, count: MemoryLayout<Int32>.stride)
         let preset_number_data = Data(bytes: &_currentPresetData.preset_number, count: MemoryLayout<Int32>.stride)
@@ -196,7 +193,6 @@ class PresetManager {
         bullet_name_data!.append(0)
         var brass_name_data = _currentPresetData.brass_name.data(using: String.Encoding.utf8)
         brass_name_data!.append(0)
-
         var _data: Data = preset_version_data
         _data.append(preset_number_data)
         _data.append(charge_weight_data)
@@ -205,10 +201,6 @@ class PresetManager {
         _data.append(contentsOf: preset_name_data!)
         _data.append(contentsOf: bullet_name_data!)
         _data.append(contentsOf: brass_name_data!)
-        
-        print("bytes to send: \(_data.count)")
-        print("_data: \(String(describing: Array(_data)))")
-        
         BlePeripheral().writePresetData(outgoingData: _data)
     }
 }
@@ -298,7 +290,6 @@ class PowderManager {
     }
 
     func updateListItem(_ name: String, index: Int) {
-        print("updateListItem() with name: \(name), index: \(index)")
         if isLoading { return }
         if index >= 0 && index < MAX_POWDERS {
             powder_name_list[index] = name
@@ -316,8 +307,7 @@ class PowderManager {
     }
     
     func BLEWritePowderData() {
-        print("BLEWritePowderData()")
-        // Serialize powder data into bytes to send over BLE.
+        //print("BLEWritePowderData()")
         let powder_version_data = Data(bytes: &_currentPowder.powder_version, count: MemoryLayout<Int32>.stride)
         let powder_number_data = Data(bytes: &_currentPowder.powder_number, count: MemoryLayout<Int32>.stride)
         let powder_factor_data = Data(bytes: &_currentPowder.powder_factor, count: MemoryLayout<Float32>.stride)
@@ -325,16 +315,11 @@ class PowderManager {
         powder_name_data!.append(0)
         var powder_lot_data = _currentPowder.powder_lot.data(using: String.Encoding.utf8)
         powder_lot_data!.append(0)
-
         var _data: Data = powder_version_data
         _data.append(powder_number_data)
         _data.append(powder_factor_data)
         _data.append(contentsOf: powder_name_data!)
         _data.append(contentsOf: powder_lot_data!)
-        
-        print("bytes to send: \(_data.count)")
-        print("_data: \(String(describing: Array(_data)))")
-        
         BlePeripheral().writePowderData(outgoingData: _data)
     }
 }
@@ -532,10 +517,6 @@ class ConfigDataManager {
         _data.append(gn_tolerance_data)
         _data.append(trickler_speed_data)
         _data.append(config_version_data)
-
-        //print("bytes to send: \(_data.count)")
-        //print("_data: \(String(describing: Array(_data)))")
-        
         BlePeripheral().writeConfigData(outgoingData: _data)
     }
 

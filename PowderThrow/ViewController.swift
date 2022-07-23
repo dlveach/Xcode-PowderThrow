@@ -100,10 +100,6 @@ class  ViewController: UIViewController, PresetChangeListener, PowderChangeListe
     }
 
     func presetChanged(to new_preset: PresetManager.PresetData) {
-        //print("main screen setting preset field")
-        //print("new preset charge weight: \(new_preset.charge_weight)")
-        //print("g_powder_manager current powder.powder_factor: \(g_powder_manager.currentPowder.powder_factor)")
-        //check preset data & enable run button
         if new_preset.charge_weight > 0 && g_powder_manager.currentPowder.powder_factor > 0 {
             presetNameLabel.text = new_preset.preset_name
             powderNameLabel.text = g_powder_manager.currentPowder.powder_name
@@ -134,6 +130,8 @@ class  ViewController: UIViewController, PresetChangeListener, PowderChangeListe
         powderNameLabel.text = new_powder.powder_name
     }
 
+    // MARK: Button Action Handlers
+    
     @IBAction func connectButtonAction(_ sender: Any) {
         // start connecting
         connectButton.isHidden = true
@@ -148,6 +146,38 @@ class  ViewController: UIViewController, PresetChangeListener, PowderChangeListe
         g_powder_manager.addListener(self)
         g_screen_manager.addListener(self)
     }
+    
+    @IBAction func runButtonAction(_ sender: Any) {
+        let screen = ScreenChangeManager.Screen.RunThrowerViewController
+        if let nextView = self.storyboard?.instantiateViewController(identifier: screen.description) {
+            self.navigationController?.pushViewController(nextView, animated: true)
+        } else {
+            print("ERROR: unknown screen view controller: \(screen.description)")
+        }
+        BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SYSTEM_SET_STATE, parameter: Int8(RunDataManager.system_state.Ready.rawValue))
+    }
+
+    @IBAction func presetsButtonAction(_ sender: Any) {
+        let screen = ScreenChangeManager.Screen.PresetsViewController
+        if let nextView = self.storyboard?.instantiateViewController(identifier: screen.description) {
+            self.navigationController?.pushViewController(nextView, animated: true)
+        } else {
+            print("ERROR: unknown screen view controller: \(screen.description)")
+        }
+        BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SYSTEM_SET_STATE, parameter: Int8(RunDataManager.system_state.Presets.rawValue))
+    }
+    
+    @IBAction func settingsButtonAction(_ sender: Any) {
+        let screen = ScreenChangeManager.Screen.SettingsViewController
+        if let nextView = self.storyboard?.instantiateViewController(identifier: screen.description) {
+            self.navigationController?.pushViewController(nextView, animated: true)
+        } else {
+            print("ERROR: unknown screen view controller: \(screen.description)")
+        }
+        BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SYSTEM_SET_STATE, parameter: Int8(RunDataManager.system_state.Settings.rawValue))
+    }
+    
+    // MARK: BLE Connection Handling
     
     func startScanning() -> Void {
         // Start Scanning

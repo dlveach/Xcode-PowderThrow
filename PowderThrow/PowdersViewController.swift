@@ -50,15 +50,13 @@ class  PowdersViewController: UIViewController, UITextFieldDelegate, PowderChang
         if let nav = self.navigationController {
             let isPopping = !nav.viewControllers.contains(self)
             if isPopping {
-                // popping off nav
-                if !ble_nav {
+                if !ble_nav {  // no dialog if navigating on peripheral
                     BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SYSTEM_SET_STATE, parameter: Int8(RunDataManager.system_state.Presets.rawValue))
                 }
                 g_powder_manager.removeListener(self)
                 g_screen_manager.removeListener(self)
             }
         } else {
-            // not on nav at all
             print("ERROR: View \(String(describing: self)) is not on nav controller at all!")
         }
     }
@@ -98,9 +96,6 @@ class  PowdersViewController: UIViewController, UITextFieldDelegate, PowderChang
 
         //Set picker to current powder.
         powderPickerView.selectRow(Int(g_powder_manager.currentPowder.powder_number-1), inComponent: 0, animated: false)
-
-        // Set state on peripheral
-        BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SYSTEM_SET_STATE, parameter: Int8(RunDataManager.system_state.Powders.rawValue))
     }
     
     // MARK: - Data Listener Callbacks
@@ -325,8 +320,6 @@ extension PowdersViewController: UIPickerViewDelegate {
     }
 
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        //print("---> Powder Picker, picker row: \(row), Manager picker list data name:  \(g_powder_manager.getListItemAt(row)), Powder number: \(row+1), Manager's current powder number: \(g_powder_manager.currentPowder.powder_number), Manager's powder name: \(g_powder_manager.currentPowder.powder_name)")
-
         if row + 1 != g_powder_manager.currentPowder.powder_number {
             BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.POWDER_DATA_BY_INDEX, parameter: Int8(row+1))
         }

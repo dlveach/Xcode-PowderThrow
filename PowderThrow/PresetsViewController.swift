@@ -107,10 +107,6 @@ class  PresetsViewController: UIViewController, UITextFieldDelegate, PresetChang
         
         //Set picker to current preset.
         presetsPickerView.selectRow(Int(g_preset_manager.currentPreset.preset_number-1), inComponent: 0, animated: false)
-
-        // Set state on peripheral
-        BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SYSTEM_SET_STATE, parameter: Int8(RunDataManager.system_state.Presets.rawValue))
-
     }
         
     // MARK: - Data Listener Callbacks
@@ -128,11 +124,7 @@ class  PresetsViewController: UIViewController, UITextFieldDelegate, PresetChang
         presetNameTextField.text = new_preset.preset_name.trimmingCharacters(in: .whitespacesAndNewlines)
         let val = (new_preset.charge_weight * 100).rounded() / 100  //two decimal places
         chargeWtTextField.text = String(val)
-        if new_preset.powder_index >= 0 {
-            PowderNameTextField.text = g_powder_manager.getListItemAt(Int(g_preset_manager.currentPreset.powder_index))
-            // Update powder manager with corresponding powder for the preset & trigger change listeners
-            BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.POWDER_DATA_BY_INDEX, parameter: Int8(new_preset.powder_index + 1)) //index is command parameter - 1 TODO: fix this!!!
-        } else {
+        if new_preset.powder_index < 0 {
             PowderNameTextField.text = "--"
         }
         bulletNameTextField.text = new_preset.bullet_name.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -146,6 +138,16 @@ class  PresetsViewController: UIViewController, UITextFieldDelegate, PresetChang
     }
     
     // MARK: - Button Handlers
+    
+    @IBAction func powdersButtonAction(_ sender: Any) {
+        let screen = ScreenChangeManager.Screen.PowdersViewController
+        if let nextView = self.storyboard?.instantiateViewController(identifier: screen.description) {
+            self.navigationController?.pushViewController(nextView, animated: true)
+        } else {
+            print("ERROR: unknown screen view controller: \(screen.description)")
+        }
+        BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.SYSTEM_SET_STATE, parameter: Int8(RunDataManager.system_state.Powders.rawValue))
+    }
     
     @IBAction func editSaveButtonAction(_ sender: Any) {
         if _isEditing {
@@ -414,13 +416,9 @@ extension PresetsViewController: UIPickerViewDelegate {
     }
 
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        print("---> Preset Picker, picker row: \(row), Manager picker list data name:  \(g_preset_manager.getListItemAt(row)), Preset number: \(row+1), Manager's current preset number: \(g_preset_manager.currentPreset.preset_number), Manager's preset name: \(g_preset_manager.currentPreset.preset_name)")
-        
         if row + 1 != g_preset_manager.currentPreset.preset_number {
             BlePeripheral().writeParameterCommand(cmd: BLE_COMMANDS.PRESET_DATA_BY_INDEX, parameter: Int8(row+1))
         }
-        
-        print("TODO: figure out how to set current powder on peripheral and trigger updates in views for powder change when preset is changed")
     }
 }
 
